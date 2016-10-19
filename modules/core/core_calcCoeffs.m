@@ -15,6 +15,8 @@ function [T,Y,calc_times] = core_calcCoeffs(S_coredata,pstep)
     pump_pwr = pump(pstep)*D0_vec;
     if strcmp(basis_type,'RING')
         solver_func = @(t,y) TDSSolvers_RING(t,y,g_per,g_par,k_a,CFvals,A,pump_pwr,length(CFvals),n);
+    elseif strcmp(basis_type,'FP')
+        solver_func = @(t,y) TDSSolvers_FP(t,y,g_per,g_par,k_a,CFvals,A,pump_pwr,length(CFvals),n);
     end
     
     %Get first group from tvec to begin saving

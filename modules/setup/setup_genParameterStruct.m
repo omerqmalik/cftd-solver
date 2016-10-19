@@ -63,10 +63,8 @@ function [S_setupdata,S_pumpdata] = setup_genParameterStruct(param_vecs,S_pumpda
         mkdir(basis_dir);
         
         %Calculate/get basis
-        if strcmp(basis_type,'RING')
-            [CFvals,CFvecs,dx,nx,x,w_FSR,Na,M] = cavity_calcRingModes(k_a,n,nCF,xdens);
-            basis_loc = [basis_dir '/RINGbasis_nCF_' num2str(nCF) '_ka_' num2str(k_a) '_n_' num2str(n) '.mat'];
-        end
+        [CFvals,CFvecs,dx,nx,x,w_FSR,Na,M] = cavity_calcModes(basis_type,k_a,n,nCF,xdens);
+        basis_loc = [basis_dir '/' basis_type 'basis_nCF_' num2str(nCF) '_ka_' num2str(k_a) '_n_' num2str(n) '.mat'];
         save(basis_loc,'CFvals','CFvecs','basis_type','dx','nx','x','w_FSR','Na','M');
 
         %Calculate integrals (only once)
