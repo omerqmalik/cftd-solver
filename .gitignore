@@ -4,3 +4,9 @@
 .DS_Store
 ._*
 *~
+test_calc_RING/*
+!test_calc_RING/run_ml_Nmode.cmd
+!test_calc_RING/TD_D0_parameters.m
+test_calc_FP/*
+!test_calc_FP/run_ml_Nmode.cmd
+!test_calc_FP/TD_D0_parameters.m
