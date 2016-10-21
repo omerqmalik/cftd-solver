@@ -1,10 +1,10 @@
-function title_str = plotting_getStandardTitle(S_coeffs)
-    k_a = S_coeffs.k_a;
-    n_R = real(S_coeffs.n);
-    n_I = imag(S_coeffs.n);
-    nCF = S_coeffs.nCF;
-    g_per = S_coeffs.g_per;
-    g_par = S_coeffs.g_par;
+function title_str = plotting_getStandardTitle(S_structdata)
+    k_a = S_structdata.k_a;
+    n_R = real(S_structdata.n);
+    n_I = imag(S_structdata.n);
+    nCF = S_structdata.nCF;
+    g_per = S_structdata.g_per;
+    g_par = S_structdata.g_par;
     %eps   = S_coeffs.eps;
     
     title_str = ['ka='  , num2str(k_a,'%.2f'), ...

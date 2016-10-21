@@ -66,4 +66,19 @@ function structdata_saveFigures(cav_dir,num,results_dir)
     S_figArray  = plotting_getFigArray(S_dataArray,'tw');
     S_movie     = structdata_makeMovie('tw',S_dataArray,S_figArray);
     plotting_saveObj(S_movie,results_dir);
+    
+    S_structdata = structdata_load(cav_dir,num,'E','field',1);
+    S_dataArray  = structdata_getDataArray(S_structdata);
+    S_figArray   = plotting_getFigArray(S_dataArray,'tw');
+    S_movie      = structdata_makeMovie('tw',S_dataArray,S_figArray);
+    plotting_saveObj(S_movie,results_dir);
+    
+    pump = S_structdata.pump;
+    for i = 1:length(pump)
+        S_thisdata = structdata_getSinglePstep(S_structdata,i);
+        S_fig      = plotting_getFigStruct(S_thisdata,'tw');
+        S_fig.f    = structdata_plotTemporalWaveform(S_thisdata,S_fig);
+        plotting_saveObj(S_fig,saveloc_tw);
+        close(S_fig.f);
+    end
 end

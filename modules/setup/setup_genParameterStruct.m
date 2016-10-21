@@ -124,8 +124,8 @@ function [S_setupdata,S_pumpdata] = setup_genParameterStruct(param_vecs,S_pumpda
         S_setupdata(index).integral_loc = integral_loc;
 
         index = index + 1;
+        
+        % Create empty files for storing calculation times
+        benchmark_createTimeFiles(times_dir,pgroups,pg_len,sz,len_tvec);
     end
-    
-    % Create empty files for storing calculation times
-    benchmark_createTimeFiles(times_dir,pgroups,pg_len,sz,len_tvec);
 end

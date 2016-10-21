@@ -27,7 +27,7 @@ function S_fig = plotting_getFigStruct(S_structdata,fig_type,varargin)
                 title_str = [title_str ', D0=' num2str(S_structdata.pump/S_structdata.th,'%.2f') '-' num2str(S_structdata.pump/S_structdata.th,'%.2f')];
             end
     end
-    S_fig.title_str = [title_str ' t=' num2str(sum(sum(S_structdata.calc_times))/60/60,'%.2f') 'h' ' (' S_structdata.id S_structdata.type ')'];
+    S_fig.title_str = [title_str ' t=' num2str(sum(sum(S_structdata.calc_times))/60/60,'%.2f') 'h' ' (' S_structdata.basis_type ',' S_structdata.id S_structdata.type ')'];
     
     S_fig.fname = S_structdata.fname;
 end
