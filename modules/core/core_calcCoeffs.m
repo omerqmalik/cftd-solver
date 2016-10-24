@@ -31,11 +31,12 @@ function [T,Y,calc_times] = core_calcCoeffs(S_coredata,pstep)
     T_temp = [];
     Y_temp = [];
     is_saving = 0;
+    opts = odeset('RelTol',1e-3,'AbsTol',1e-6);   %MATLAB defaults: RelTol=1e-3, AbsTol=1e-6 (usually good enough)
     
     %Run ODE solver, save E_t, and store T and Y in memory to return at end
     for j = 1:(len_tvec - 1)
         tstart_in = tic;
-        [T,Y] = ode45(solver_func, [tvec(j) tvec(j+1)],noise_vec);
+        [T,Y] = ode45(solver_func, [tvec(j) tvec(j+1)],noise_vec,opts);
         calc_times(j) = toc(tstart_in);
         noise_vec = Y(end,:);
 
