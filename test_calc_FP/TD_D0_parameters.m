@@ -13,11 +13,11 @@ A_basis_n     = 3.3+0.05*1i;
 A_basis_nCF   = 7;
 
 %for CFTD calculations
-A_cftd_gper = 7;         %unitless (gper*L/c)
+A_cftd_gper = [6 7];         %unitless (gper*L/c)
 A_cftd_gpar = 0.028;     %unitless (gpar*L/c)
 A_cftd_eps  = 0.01;
 
-C_parameters = {[A_basis_k_a.',A_cftd_gper.',A_cftd_gpar.'], ...
+C_parameters = {A_basis_k_a.',A_cftd_gper.',A_cftd_gpar.', ...
                 A_basis_n.',A_basis_nCF.',A_cftd_eps.'};
 order        = [1 4 5 2 3 6];
 
@@ -28,12 +28,12 @@ param_vecs = setup_genParameterVectors(C_parameters,order);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 S_pumpdata = struct('p_dens',1, ...  %density of pump per unit threshold
     't0',       0, ...               %start time (unitless: t*c/L)
-    't1',       5000, ...            %end time (unitless: t*c/L)
+    't1',       1000, ...            %end time (unitless: t*c/L)
     'cratio',   0.1, ...             %calculation ratio
     'sratio',   0.2, ...             %save ratio
     'prel_i',   9, ...               %as ratio of th
-    'prel_f',   30, ...              %as ratio of th
-    'pg_len',   1, ...               %length of each pump group
+    'prel_f',   15, ...              %as ratio of th
+    'pg_len',   10, ...               %length of each pump group
     'xdens',    100);                %points per [0,2*pi] range
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

@@ -28,6 +28,7 @@ function [T,Y,calc_times] = core_calcCoeffs(S_coredata,pstep)
     %Initialize
     noise_vec  = S_coredata.noise_vec;
     calc_times = zeros(len_tvec-1,1);
+    benchmark_saveTimeForPstep(S_coredata.times_dir,pstep,calc_times);
     T_temp = [];
     Y_temp = [];
     is_saving = 0;
@@ -82,6 +83,7 @@ function [T,Y,calc_times] = core_calcCoeffs(S_coredata,pstep)
             end
         end
         fprintf('iteration %g: %fs\n',j,calc_times(j));
+        benchmark_saveTimeForPstep(S_coredata.times_dir,pstep,calc_times);
     end
     fprintf('Total time: %fs\n\n',sum(calc_times));     %Is the data below being saved 'clean'?
     
