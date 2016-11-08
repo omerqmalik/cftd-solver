@@ -19,4 +19,8 @@ function [t,Y] = userdata_load(data_dir,data_id,data_type,psteps)
             index = index + 1;
         end
     end
+    
+    if strcmp(data_type,'field')
+        Y = squeeze(Y);
+    end
 end

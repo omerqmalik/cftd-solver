@@ -1,84 +1,65 @@
 function structdata_saveFigures(cav_dir,num,results_dir)
 
-    %plot 3Dfft
-    S_structdata  = structdata_load(cav_dir,num,'E','coeffs',1);
-    S_fig   = plotting_getFigStruct(S_structdata,'fft_field');
-    S_fig.f = structdata_plotFFT(S_structdata,S_fig);
-    plotting_saveObj(S_fig,results_dir);
-    close(S_fig.f);
-    
-    %plot 2Dffts (lin and log)
-    pump = S_structdata.pump;
-    saveloc_2D = [results_dir '/2Dfft'];
-    saveloc_tw = [results_dir '/tw'];
-    if ~(exist(saveloc_2D,'dir') == 7)
-        mkdir(saveloc_2D);
+    %create directories
+    savedir_2DfieldFFT  = [results_dir '/2DfieldFFT'];
+    savedir_2DfieldTW   = [results_dir '/2DfieldTW'];
+    savedir_2DcoeffsFFT = [results_dir '/2DcoeffsFFT'];
+    if ~(exist(savedir_2DfieldFFT,'dir') == 7)
+        mkdir(savedir_2DfieldFFT);
     end
-    if ~(exist(saveloc_tw,'dir') == 7)
-        mkdir(saveloc_tw);
+    if ~(exist(savedir_2DfieldTW,'dir') == 7)
+        mkdir(savedir_2DfieldTW);
     end
-    for i = 1:length(pump)
-        S_thisdata = structdata_getSinglePstep(S_structdata,i);
+    if ~(exist(savedir_2DcoeffsFFT,'dir') == 7)
+        mkdir(savedir_2DcoeffsFFT);
+    end
 
-        S_fig      = plotting_getFigStruct(S_thisdata,'fft_field',1,0);
-        S_fig.f    = structdata_plotFFT(S_thisdata,S_fig);
-        plotting_saveObj(S_fig,saveloc_2D);
-        close(S_fig.f);
+    %Load coeffs data and also convert to array
+    S_structdataAll = structdata_load(cav_dir,num,'E','coeffs',1);
+    S_dataArray     = structdata_getDataArray(S_structdataAll);
+    
+    %Plot 3DfieldFFT
+    plotting_plotData(S_structdataAll,'FFT','3Dfield',results_dir);
+    
+    pump = S_structdataAll.pump;
+    for i = 1:length(pump)
+        %Get individual pump step structs
+        S_structdataSingle = structdata_getPsteps(S_structdataAll,i);
+ 
+        %plot 2DfieldFFT (lin and log)
+        plotting_plotData(S_structdataSingle,'FFT','2Dfield',savedir_2DfieldFFT,1,0);
+        plotting_plotData(S_structdataSingle,'FFT','2Dfield',savedir_2DfieldFFT,0,0);
+        plotting_plotData(S_structdataSingle,'FFT','2Dfield',savedir_2DfieldFFT,1,1);
+        plotting_plotData(S_structdataSingle,'FFT','2Dfield',savedir_2DfieldFFT,0,1);
         
-        S_fig      = plotting_getFigStruct(S_thisdata,'fft_field',0,0);
-        S_fig.f    = structdata_plotFFT(S_thisdata,S_fig);
-        plotting_saveObj(S_fig,saveloc_2D);
-        close(S_fig.f);
-        
-        S_fig      = plotting_getFigStruct(S_thisdata,'fft_field',1,1);
-        S_fig.f    = structdata_plotFFT(S_thisdata,S_fig);
-        plotting_saveObj(S_fig,saveloc_2D);
-        close(S_fig.f);
-        
-        S_fig      = plotting_getFigStruct(S_thisdata,'fft_field',0,1);
-        S_fig.f    = structdata_plotFFT(S_thisdata,S_fig);
-        plotting_saveObj(S_fig,saveloc_2D);
-        close(S_fig.f);
-        
-        S_fig      = plotting_getFigStruct(S_thisdata,'tw');
-        S_fig.f    = structdata_plotTemporalWaveform(S_thisdata,S_fig);
-        plotting_saveObj(S_fig,saveloc_tw);
-        close(S_fig.f);
+        %plot 2DcoeffsFFT (log)
+        plotting_plotData(S_structdataSingle,'FFT','2Dcoeffs',savedir_2DcoeffsFFT,0,0);
+        plotting_plotData(S_structdataSingle,'FFT','2Dcoeffs',savedir_2DcoeffsFFT,0,1);
+
+        %plot 2DfieldTW (from coeffs)
+        plotting_plotData(S_structdataSingle,'TW','2Dfield',savedir_2DfieldTW);
     end
     
-    %plot 2Dfft movie (lin and log)
-    S_dataArray = structdata_getDataArray(S_structdata);
-    S_figArray  = plotting_getFigArray(S_dataArray,'fft',1,1);
-    S_movie     = structdata_makeMovie('fft',S_dataArray,S_figArray);
-    plotting_saveObj(S_movie,results_dir);
+    %plot 2DfieldFFTmov (lin and log)
+    plotting_plotData(S_dataArray,'FFTmov','2Dfield',results_dir,1,1)
+    plotting_plotData(S_dataArray,'FFTmov','2Dfield',results_dir,0,1)
     
-    S_figArray  = plotting_getFigArray(S_dataArray,'fft',0,1);
-    S_movie     = structdata_makeMovie('fft',S_dataArray,S_figArray);
-    plotting_saveObj(S_movie,results_dir);
+    %plot 2DcoeffsFFTmov (log)
+    plotting_plotData(S_dataArray,'FFTmov','2Dcoeffs',results_dir,0,1);
+        
+    %plot 2DfieldTWmov (from coeffs)
+    plotting_plotData(S_dataArray,'TWmov','2Dfield',results_dir);
     
-%     %plot E_t
-%     S_fig   = plotting_getFigStruct(S_structdata,'tw');
-%     S_fig.f = structdata_plotTemporalWaveform(S_structdata,S_fig);
-%     plotting_saveObj(S_fig,results_dir);
-%     close(S_fig.f);
+    %plot 2DfieldTWmov (from field)
+    S_structdataAll = structdata_load(cav_dir,num,'E','field',1);
+    S_dataArray  = structdata_getDataArray(S_structdataAll);
+    plotting_plotData(S_dataArray,'TWmov','2Dfield',results_dir);
     
-    %plot E_t movie
-    S_figArray  = plotting_getFigArray(S_dataArray,'tw');
-    S_movie     = structdata_makeMovie('tw',S_dataArray,S_figArray);
-    plotting_saveObj(S_movie,results_dir);
-    
-    S_structdata = structdata_load(cav_dir,num,'E','field',1);
-    S_dataArray  = structdata_getDataArray(S_structdata);
-    S_figArray   = plotting_getFigArray(S_dataArray,'tw');
-    S_movie      = structdata_makeMovie('tw',S_dataArray,S_figArray);
-    plotting_saveObj(S_movie,results_dir);
-    
-    pump = S_structdata.pump;
+    %plot 2DfieldTW (from field)
+    pump = S_structdataAll.pump;
     for i = 1:length(pump)
-        S_thisdata = structdata_getSinglePstep(S_structdata,i);
-        S_fig      = plotting_getFigStruct(S_thisdata,'tw');
-        S_fig.f    = structdata_plotTemporalWaveform(S_thisdata,S_fig);
-        plotting_saveObj(S_fig,saveloc_tw);
-        close(S_fig.f);
+        S_structdataSingle = structdata_getPsteps(S_structdataAll,i);
+        
+        plotting_plotData(S_structdataSingle,'TW','2Dfield',savedir_2DfieldTW);
     end
 end
