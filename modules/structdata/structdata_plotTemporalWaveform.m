@@ -7,7 +7,7 @@ function f = structdata_plotTemporalWaveform(S_structdata,S_fig)
     end
     
     field_t = abs(field_t);
-    [f,h] = plotting_linplot2Dfunc(S_structdata.t,field_t,S_fig);
+    [f,h] = plotting_plot2Dfunc(S_structdata.t,field_t,S_fig);
     if length(h) > 1
         c = jet(length(h));
         for i = 1:length(h)

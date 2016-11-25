@@ -27,6 +27,7 @@ function S_fig = plotting_getFigStruct(S_structdata,fig_type,opt_islin,opt_isdec
         
         title_str = [title_str ', D0=' num2str(S_structdata.pump/S_structdata.th,'%.2f')];
     elseif strcmp(fig_type,'2DfieldTW')
+            S_fig.islin = 1;
             S_fig.x_label = 't';
             S_fig.y_label = {['$|' S_structdata.id '(x_0,t)|$']};
             if length(S_structdata.pump) == 1            

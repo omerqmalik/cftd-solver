@@ -35,10 +35,14 @@ function [S_setupdata,S_pumpdata] = setup_genParameterStruct(param_vecs,S_pumpda
         'calc_path',[],'calc_dir',[],'data_dir',[],'times_dir',[], ...
         'results_dir',[]);
     S_setupdata(leN).nCF = [];
+    
+    integral_dir = 'integrals';
+    mkdir(integral_dir);
 
     index = 1;
     done_NCF = [];
     done_k_a = [];
+    done_n   = [];
     for i = 1:leN
         k_a   = param_vecs(i,1);
         n     = param_vecs(i,2);
@@ -68,18 +72,20 @@ function [S_setupdata,S_pumpdata] = setup_genParameterStruct(param_vecs,S_pumpda
         save(basis_loc,'CFvals','CFvecs','basis_type','dx','nx','x','w_FSR','Na','M');
 
         %Calculate integrals (only once)
-        if sum((done_NCF == nCF) & (done_k_a == k_a)) == 0
+        if sum((done_NCF == nCF) & (done_k_a == k_a) & (done_n == n)) == 0
             int_time = tic;
             [A,A_index,B,D0_vec,D_index] = setup_calcOverlapIntegrals(nCF,n^2,ones(length(x),1),CFvecs,basis_type,dx,M);
             int_time = toc(int_time);
             fprintf(['nCF = ' num2str(nCF) ': %fs\n'],int_time);
-            integral_dir = 'integrals';
-            mkdir(integral_dir);
+
             integral_loc = [integral_dir '/TD_integrals_nCF_' num2str(nCF) '_ka_' num2str(k_a) '_n_' num2str(n) '.mat'];
             save(integral_loc,'A','A_index','B','D0_vec','D_index','-v7.3');
     
             done_NCF = [done_NCF nCF];
             done_k_a = [done_k_a k_a];
+            done_n   = [done_n n];
+        else
+            integral_loc = [integral_dir '/TD_integrals_nCF_' num2str(nCF) '_ka_' num2str(k_a) '_n_' num2str(n) '.mat'];
         end
 
         %Get threshold

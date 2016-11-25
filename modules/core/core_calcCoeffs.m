@@ -40,6 +40,7 @@ function [T,Y,calc_times] = core_calcCoeffs(S_coredata,pstep)
         [T,Y] = ode45(solver_func, [tvec(j) tvec(j+1)],noise_vec,opts);
         calc_times(j) = toc(tstart_in);
         noise_vec = Y(end,:);
+        Y = Y(:,1:2*S_coredata.nCF);
 
         %Save E_t
         E_t_next = userdata_calcTemporalField(Y(:,1:S_coredata.nCF),S_coredata.CFvecs);

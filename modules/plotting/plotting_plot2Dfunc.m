@@ -7,14 +7,15 @@ function [f,h] = plotting_plot2Dfunc(x,y,S_fig)
 
     f = plotting_makeFig;
     
+    c = autumn(size(y,2));
     if size(y,2) > 1
-        plot_func(x,y(:,1));
+        h = plot_func(x,y(:,1),'color',c(1,:));
         hold on;
         for i = 2:size(y,2)
-            h = plot_func(x,y(:,i));
+            h = plot_func(x,y(:,i),'color',c(i,:));
         end
     else
-        plot_func(x,y);
+        h = plot_func(x,y);
     end
     
     xlabel(S_fig.x_label,'interpreter','latex');
