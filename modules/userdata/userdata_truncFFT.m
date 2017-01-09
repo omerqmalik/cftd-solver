@@ -1,4 +1,5 @@
 function [trunc_w,trunc_vec] = userdata_truncFFT(w,fft_w,center,half_width,skip)
+%     half_width = 4*half_width;
     trunc_vec = fft_w(w < (center+half_width) & w > (center-half_width),:);
     trunc_w   = w(w < (center+half_width) & w > (center-half_width));
     
