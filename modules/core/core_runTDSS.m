@@ -2,7 +2,7 @@ function core_runTDSS(cav_dir,num,pgroup)
     clearvars -global
     global benchmarking;
     global usingc;
-    usingc = true;
+    usingc = false;
     benchmarking = true;
     addpath(genpath('/tigress/omalik/Time Dynamics/cftd-solver/modules'));
     
