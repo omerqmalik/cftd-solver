@@ -22,7 +22,7 @@ if (usingc)
     t_initial = tv(1);
     t_final = tv(2);
     
-    [T, Y] = runge_kutta4(S_coredata, pump_pwr, t_initial, t_final, noise_vec);
+    [T, Y] = runge_kutta4(S_coredata, pump_pwr, t_initial, t_final, noise_vec, basis_type);
     
 else
     
