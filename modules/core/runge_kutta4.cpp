@@ -47,9 +47,6 @@ matrix<std::complex<double>> D_mat;
 matrix <double> A;
 matrix <double> B;
 
-typedef runge_kutta4<vector<double>> rk4;
-typedef runge_kutta_dopri5<vector<double>> stepper_type;
-
 enum solver_type {FP, RING, UCF};
 
 struct observer {
@@ -58,14 +55,16 @@ private:
     std::vector<double>& tout;
     std::vector<double>& yout_real;
     std::vector<double>& yout_imag;
+    std::vector<state_type> & yout;
 
 public:
-    observer(std::vector<double>& to,
-                       std::vector<double>& real,
-                       std::vector<double>& imag) :
-        tout(to), yout_real(real), yout_imag(imag)
+    observer(std::vector<double>& tout_,
+                       std::vector<double>& real_,
+                       std::vector<double>& imag_,
+                       std::vector<state_type> & yout_) :
+        tout(tout_), yout_real(real_), yout_imag(imag_), yout(yout_)
     {
-        FILE_LOG(logDEBUG) << "Initializing observer";
+        FILE_LOG(logINFO) << "Initializing observer";
     }
 
     void operator()(const state_type &x, const double t)
@@ -73,37 +72,42 @@ public:
         FILE_LOG(logDEBUG4) << "begin of operator";
         tout.push_back(t);
 
+        
         for(int j = 0; j < N * (N + 2); j++) {
+            if (j > N*N) {
+             FILE_LOG(logDEBUG4) << "Observer Vals Re: " << 
+                     x[j].real() << " Im: " << x[j].imag();
+            }
             yout_real.push_back(x[j].real());
             yout_imag.push_back(x[j].imag());
         }
-
+        
+        yout.push_back(x);
+        
         num++;
     }
 
 };
 
 struct TDSSolvers_RING {
-    bool first_time = true;
+    
+    TDSSolvers_RING()
+    {
+        FILE_LOG(logDEBUG) << "Init FP";
+    }
 
     void operator()(const state_type& y, const state_type& dy, const double t)
     {
-        if(first_time) {
-            FILE_LOG(logDEBUG) << "begin RING";
-            FILE_LOG(logDEBUG) << "Size of y:" << y.size() << " dy :" << dy.size();
-            first_time = false;
-        }
-
         //a_vec  = y(1:N);
         a_vec = subrange(y, 0, N);
         b_vec1 = subrange(y, N, 2 * N);
-        D_vec = subrange(y, (2 * N + 1), y.size());
+        D_vec = subrange(y, (2 * N), y.size());
         matrix<std::complex<double>> Q = outer_prod(conj(b_vec1), a_vec);
 
         for(int i = 0; i < N * N; i++) {
             for(int j = 0; j < N * N; j++) {
                 int a = j / N;
-                int b = j % N - 1;
+                int b = j % N;
                 NL_term[i] += A(i, j) * (Q(a, b) - Q(b, a));
             }
         }
@@ -112,8 +116,6 @@ struct TDSSolvers_RING {
 
         for(int i = 0; i < N; i++) {
             for(int j = 0; j < N; j++) {
-                int a = j / N;
-                int b = j % N - 1;
                 a_vecTD_mat[i] += D_vec(i * (N - 1) + j) * a_vec(i);
             }
         }
@@ -130,26 +132,24 @@ struct TDSSolvers_RING {
 };
 
 struct TDSSolvers_UCF {
-    bool first_time = true;
+    
+    TDSSolvers_UCF() 
+    {
+        FILE_LOG(logDEBUG) << "Init FP";
+    }
 
     void operator()(const state_type& y, const state_type& dy, const double t)
     {
-        if(first_time) {
-            FILE_LOG(logDEBUG) << "Begin UCF";
-            FILE_LOG(logDEBUG) << "Size of y:" << y.size() << " dy :" << dy.size();
-            first_time = false;
-        }
-
         FILE_LOG(logDEBUG4) << "begin UCF";
         a_vec = subrange(y, 0, N);
         b_vec1 = subrange(y, N, 2 * N);
-        D_vec = subrange(y, (2 * N + 1), y.size());
+        D_vec = subrange(y, (2 * N), y.size());
         matrix<std::complex<double>> Q = outer_prod(conj(b_vec1), a_vec);
 
         for(int i = 0; i < N * N; i++) {
             for(int j = 0; j < N * N; j++) {
                 int a = j / N;
-                int b = j % N - 1;
+                int b = j % N;
                 NL_term[i] += A(i, j) * (Q(a, b) - Q(b, a));
             }
         }
@@ -159,8 +159,6 @@ struct TDSSolvers_UCF {
 
         for(int i = 0; i < N; i++) {
             for(int j = 0; j < N; j++) {
-                int a = j / N;
-                int b = j % N - 1;
                 a_vecT_D_mat[i] += D_vec(i * (N - 1) + j) * a_vec(i);
                 b_vecT_B[i] += B(i, j) * a_vec(i);
             }
@@ -178,26 +176,24 @@ struct TDSSolvers_UCF {
 };
 
 struct TDSSolvers_FP {
-    bool first_time = true;
 
+    TDSSolvers_FP() 
+    {
+        FILE_LOG(logDEBUG) << "Init FP";
+    }
+    
     void operator()(const state_type& y, const state_type& dy, const double t)
     {
-        if(first_time) {
-            FILE_LOG(logDEBUG) << "begin FP";
-            FILE_LOG(logDEBUG) << "Size of y:" << y.size() << " dy :" << dy.size();
-            first_time = false;
-        }
-
         FILE_LOG(logDEBUG4) << "begin FP";
         a_vec = subrange(y, 0, N);
         b_vec1 = subrange(y, N, 2 * N);
-        D_vec = subrange(y, (2 * N + 1), y.size());
+        D_vec = subrange(y, 2 * N , y.size());
         matrix<std::complex<double>> Q = imag(outer_prod(conj(b_vec1), a_vec));
 
         for(int i = 0; i < N * N; i++) {
             for(int j = 0; j < N * N; j++) {
                 int a = j / N;
-                int b = j % N - 1;
+                int b = j % N ;
                 NL_term[i] += A(i, j) * Q(a, b);
             }
         }
@@ -206,8 +202,6 @@ struct TDSSolvers_FP {
 
         for(int i = 0; i < N; i++) {
             for(int j = 0; j < N; j++) {
-                int a = j / N;
-                int b = j % N - 1;
                 a_vecTD_mat[i] += D_vec(i * (N - 1) + j) * a_vec(i);
             }
         }
@@ -230,7 +224,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     mstream mout;
     std::streambuf *outbuf = std::cout.rdbuf(&mout);
     // Initialize logger
-    FILELog::ReportingLevel() = logINFO;
+    FILELog::ReportingLevel() = logDEBUG;
     
     FILE_LOG(logINFO) << "beginning of mexfunction";
     g_per = *mxGetPr(mxGetField(prhs[0], 0, "g_per"));
@@ -323,40 +317,47 @@ void mexFunction(int nlhs, mxArray *plhs[],
     NL_term.resize(N * N);
     obs_temp.resize(N * (N + 2));
     num = 0;
+    
     FILE_LOG(logDEBUG4) << "checkpoint 5";
     FILE_LOG(logDEBUG4) << "checkpoint 6";
-    plhs[0] = mxCreateDoubleMatrix(0, 0, mxREAL);
-    plhs[1] = mxCreateDoubleMatrix(0, 0, mxCOMPLEX);
+
     FILE_LOG(logDEBUG4) << "checkpoint 7";
     FILE_LOG(logDEBUG4) << "checkpoint 8";
+    
     std::vector<double> tout;
     std::vector<double> yout_real;
     std::vector<double> yout_imag;
+    std::vector<state_type> yout;
     
     FILE_LOG(logINFO) << "Before Integrate";
 
+    TDSSolvers_FP fp;
+	typedef runge_kutta4<vector<double>> rk4; //unused
+	typedef runge_kutta_dopri5<vector<double>> stepper_type;
+	//typedef runge_kutta_dopri5<state_type> stepper_type; //does not work?
+    
     if(basis_type.compare("RING") == 0) {
         FILE_LOG(logDEBUG4) << "Before calling RING integrator";
-        integrate_const(make_controlled(1.0e-6, 1.0e-3, stepper_type()),
+        integrate_const(make_dense_output(1.0e-6, 1.0e-6, stepper_type()),
                         TDSSolvers_RING(), noise_vec,
                         *t_initial_pt, *t_final_pt, 0.1,
-                        observer(tout, yout_real, yout_imag));
+                        observer(tout, yout_real, yout_imag, yout));
     }
 
     else if(basis_type.compare("UCF") == 0) {
         FILE_LOG(logDEBUG4) << "Before calling UCF integrator";
-        integrate_const(make_controlled(1.0e-6, 1.0e-3, stepper_type()),
+        integrate_const(make_dense_output(1.0e-6, 1.0e-3, stepper_type()),
                         TDSSolvers_UCF(), noise_vec,
                         *t_initial_pt, *t_final_pt, 0.1,
-                        observer(tout, yout_real, yout_imag));
+                        observer(tout, yout_real, yout_imag, yout));
     }
 
     else if(basis_type.compare("FP") == 0) {
         FILE_LOG(logDEBUG4) << "Before calling FP integrator";
-        integrate_const(make_controlled(1.0e-6, 1.0e-3, stepper_type()),
-                        TDSSolvers_FP(), noise_vec,
+        integrate_const(make_dense_output(1.0e-6, 1.0e-3, stepper_type()),
+                        fp, noise_vec,
                         *t_initial_pt, *t_final_pt, 0.1,
-                        observer(tout, yout_real, yout_imag));
+                        observer(tout, yout_real, yout_imag, yout));
     }
 
     else {
@@ -364,40 +365,49 @@ void mexFunction(int nlhs, mxArray *plhs[],
     }
 
     FILE_LOG(logINFO) << "After Integrate";
-    FILE_LOG(logDEBUG4) << "before assigning output";
-    FILE_LOG(logDEBUG4) << num << std::endl;
+    FILE_LOG(logDEBUG) << "before assigning output";
+    FILE_LOG(logDEBUG) << num;
     int index = 0;
     double * outT = (double *) mxMalloc(num * sizeof(double));
-    FILE_LOG(logDEBUG4) << outT << std::endl;
+    FILE_LOG(logDEBUG4) << outT;
     FILE_LOG(logDEBUG4) << tout.size();
     FILE_LOG(logDEBUG4) << "after malloc";
 
+    FILE_LOG(logDEBUG4) << "after first loop";
+    double * outYr = (double *) mxCalloc(num * N * (N + 2), sizeof(double));
+    double * outYi = (double *) mxCalloc(num * N * (N + 2), sizeof(double));
+    
     for(index = 0; index < num; index++) {
         FILE_LOG(logDEBUG4) << "in loop " << index << std::endl;
-        outT[index] = tout[index];
+        outT[index] = tout[index]; 
+    
+        for(int j = 0; j < N * (N + 2); j++) {
+            if (j > N*N && index > num-2) {
+                FILE_LOG(logDEBUG) << "Values Re: " << 
+                        yout[index][j].real() << " Im: " << 
+                        yout[index][j].imag();
+            }
+            
+            outYr[index *N * (N + 2) + j] = yout[index][j].real();
+            outYi[index *N * (N + 2) + j] = yout[index][j].imag();
+        }
     }
-
-    FILE_LOG(logDEBUG4) << "after first loop";
-    double * outYr = (double *) mxMalloc(num * N * (N + 2) * sizeof(double));
-    double * outYi = (double *) mxMalloc(num * N * (N + 2) * sizeof(double));
-
-    for(index = 0; index < num * N * (N + 2); index++) {
-        outYr[index] = yout_real[index];
-        outYi[index] = yout_imag[index];
-    }
-
+    
+    plhs[0] = mxCreateDoubleMatrix(0, 0, mxREAL); 
     mxSetPr(plhs[0], outT);
     mxSetM(plhs[0], num);
     mxSetN(plhs[0], 1);
+    
     FILE_LOG(logDEBUG4) << "in between assigning output";
+    
+    plhs[1] = mxCreateDoubleMatrix(0, 0, mxCOMPLEX); 
     mxSetPr(plhs[1], outYr);
     mxSetPi(plhs[1], outYi);
     mxSetM(plhs[1], num);
     mxSetN(plhs[1], N * (N + 2));
+    
     FILE_LOG(logINFO) << "End of Mex Function";
     
     // Replace redirection
     std::cout.rdbuf(outbuf);
 }
-
-
