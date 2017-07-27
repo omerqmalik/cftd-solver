@@ -54,21 +54,23 @@ enum solver_type {FP, RING, UCF};
 
 struct observer {
 
+private:
     std::vector<double>& tout;
     std::vector<double>& yout_real;
     std::vector<double>& yout_imag;
 
-    observer::observer(std::vector<double>& to,
+public:
+    observer(std::vector<double>& to,
                        std::vector<double>& real,
                        std::vector<double>& imag) :
         tout(to), yout_real(real), yout_imag(imag)
     {
-        FILE_LOG(logINFO) << "Initializing observer" << std::endl;
+        FILE_LOG(logDEBUG) << "Initializing observer";
     }
 
     void operator()(const state_type &x, const double t)
     {
-        FILE_LOG(logDEBUG4) << "begin of operator" << std::endl;
+        FILE_LOG(logDEBUG4) << "begin of operator";
         tout.push_back(t);
 
         for(int j = 0; j < N * (N + 2); j++) {
@@ -87,8 +89,8 @@ struct TDSSolvers_RING {
     void operator()(const state_type& y, const state_type& dy, const double t)
     {
         if(first_time) {
-            FILE_LOG(logDEBUG) << "begin RING" << std::endl;
-            FILE_LOG(logDEBUG) << "Size of y:" << y.size() << " dy :" << dy.size() << std::endl;
+            FILE_LOG(logDEBUG) << "begin RING";
+            FILE_LOG(logDEBUG) << "Size of y:" << y.size() << " dy :" << dy.size();
             first_time = false;
         }
 
@@ -133,12 +135,12 @@ struct TDSSolvers_UCF {
     void operator()(const state_type& y, const state_type& dy, const double t)
     {
         if(first_time) {
-            FILE_LOG(logDEBUG) << "Begin UCF" << std::endl;
-            FILE_LOG(logDEBUG) << "Size of y:" << y.size() << " dy :" << dy.size() << std::endl;
+            FILE_LOG(logDEBUG) << "Begin UCF";
+            FILE_LOG(logDEBUG) << "Size of y:" << y.size() << " dy :" << dy.size();
             first_time = false;
         }
 
-        FILE_LOG(logDEBUG4) << "begin UCF" << std::endl;
+        FILE_LOG(logDEBUG4) << "begin UCF";
         a_vec = subrange(y, 0, N);
         b_vec1 = subrange(y, N, 2 * N);
         D_vec = subrange(y, (2 * N + 1), y.size());
@@ -181,12 +183,12 @@ struct TDSSolvers_FP {
     void operator()(const state_type& y, const state_type& dy, const double t)
     {
         if(first_time) {
-            FILE_LOG(logDEBUG) << "begin FP" << std::endl;
-            FILE_LOG(logDEBUG) << "Size of y:" << y.size() << " dy :" << dy.size() << std::endl;
+            FILE_LOG(logDEBUG) << "begin FP";
+            FILE_LOG(logDEBUG) << "Size of y:" << y.size() << " dy :" << dy.size();
             first_time = false;
         }
 
-        FILE_LOG(logDEBUG4) << "begin FP" << std::endl;
+        FILE_LOG(logDEBUG4) << "begin FP";
         a_vec = subrange(y, 0, N);
         b_vec1 = subrange(y, N, 2 * N);
         D_vec = subrange(y, (2 * N + 1), y.size());
@@ -230,43 +232,43 @@ void mexFunction(int nlhs, mxArray *plhs[],
     // Initialize logger
     FILELog::ReportingLevel() = logINFO;
     
-    FILE_LOG(logINFO) << "beginning of mexfunction" << std::endl;
+    FILE_LOG(logINFO) << "beginning of mexfunction";
     g_per = *mxGetPr(mxGetField(prhs[0], 0, "g_per"));
-    FILE_LOG(logDEBUG4) << "checkpoint 0.1" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 0.1";
     g_par = *mxGetPr(mxGetField(prhs[0], 0, "g_par"));
-    FILE_LOG(logDEBUG4) << "checkpoint 0.2" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 0.2";
     k_a = *mxGetPr(mxGetField(prhs[0], 0, "k_a"));
-    FILE_LOG(logDEBUG4) << "checkpoint 0.31" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 0.31";
     char * temp_basis_type = mxArrayToString(prhs[5]);
-    FILE_LOG(logDEBUG4) << "checkpoint 0.32" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 0.32";
     std::string basis_type = std::string(temp_basis_type);
-    FILE_LOG(logDEBUG4) << "checkpoint 0.33" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 0.33";
     mxFree(temp_basis_type);
-    FILE_LOG(logDEBUG4) << "checkpoint 0.4" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 0.4";
     N =  mxGetDimensions(mxGetField(prhs[0], 0, "CFvals"))[0];
-    FILE_LOG(logDEBUG4) << "checkpoint 0.5" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 0.5";
     double * ptA = mxGetPr(mxGetField(prhs[0], 0, "A"));
-    FILE_LOG(logDEBUG4) << "checkpoint 0.6" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 0.6";
     int dimA = mxGetDimensions(mxGetField(prhs[0], 0, "A"))[0];
-    FILE_LOG(logDEBUG4) << "checkpoint 0.7" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 0.7";
     double * ptB = mxGetPr(mxGetField(prhs[0], 0, "A"));
-    FILE_LOG(logDEBUG4) << "checkpoint 0.8" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 0.8";
     int dimB = mxGetDimensions(mxGetField(prhs[0], 0, "B"))[0];
-    FILE_LOG(logDEBUG4) << "checkpoint 0.9" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 0.9";
     double * CFvalsReal = (double *) mxGetPr(mxGetField(prhs[0], 0, "CFvals"));
-    FILE_LOG(logDEBUG4) << "checkpoint 0.10" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 0.10";
     double * CFvalsImag = (double *) mxGetPi(mxGetField(prhs[0], 0, "CFvals"));
-    FILE_LOG(logDEBUG4) << "checkpoint 1" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 1";
     CFvals.resize(N);
-    FILE_LOG(logDEBUG4) << "checkpoint 1.01" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 1.01";
 
     for(int i = 0; i < N; i++) {
         CFvals[i] = std::complex<double>(CFvalsReal[i], CFvalsImag[i]);
     }
 
-    FILE_LOG(logDEBUG4) << "checkpoint 1.1" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 1.1";
     A.resize(dimA, dimA);
-    FILE_LOG(logDEBUG4) << "checkpoint 1.2" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 1.2";
 
     for(int i = 0; i < dimA; i++) {
         for(int j = 0; j < dimA; j++) {
@@ -274,9 +276,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
         }
     }
 
-    FILE_LOG(logDEBUG4) << "checkpoint 1.3" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 1.3";
     B.resize(dimB, dimB);
-    FILE_LOG(logDEBUG4) << "checkpoint 1.4" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 1.4";
 
     for(int i = 0; i < dimB; i++) {
         for(int j = 0; j < dimB; j++) {
@@ -284,7 +286,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
         }
     }
 
-    FILE_LOG(logDEBUG4) << "checkpoint 2" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 2";
     auto pump_pt = mxGetPr(prhs[1]);
     pump_pwr.resize(mxGetDimensions(prhs[1])[0]);
 
@@ -292,7 +294,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
         pump_pwr[i] = pump_pt[i];
 
     n = *mxGetPr(mxGetField(prhs[0], 0, "n"));
-    FILE_LOG(logDEBUG4) << "checkpoint 3" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 3";
     auto noise_pt = mxGetPr(prhs[4]);
     //noise_vec.resize(mxGetDimensions(prhs[4])[0]);
     noise_vec.resize(N * (N + 2));
@@ -302,14 +304,14 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     auto t_initial_pt = mxGetPr(prhs[2]);
     auto t_final_pt = mxGetPr(prhs[3]);
-    FILE_LOG(logDEBUG4) << "Resizing all structures" << std::endl;
+    FILE_LOG(logDEBUG4) << "Resizing all structures";
     /*
     const int dt_steps = 5089;
     double dt = (*t_final_pt - *t_initial_pt) / dt_steps;
     outT.resize(dt_steps + 1, 1);
     outY.resize(dt_steps + 1, N * (N + 2));
     */
-    FILE_LOG(logDEBUG4) << "checkpoint 4" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 4";
     holder.resize(N * (N + 2));
     a_vec.resize(N);
     b_vec1.resize(N);
@@ -321,35 +323,37 @@ void mexFunction(int nlhs, mxArray *plhs[],
     NL_term.resize(N * N);
     obs_temp.resize(N * (N + 2));
     num = 0;
-    FILE_LOG(logDEBUG4) << "checkpoint 5" << std::endl;
-    FILE_LOG(logDEBUG4) << "checkpoint 6" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 5";
+    FILE_LOG(logDEBUG4) << "checkpoint 6";
     plhs[0] = mxCreateDoubleMatrix(0, 0, mxREAL);
     plhs[1] = mxCreateDoubleMatrix(0, 0, mxCOMPLEX);
-    FILE_LOG(logDEBUG4) << "checkpoint 7" << std::endl;
-    FILE_LOG(logDEBUG4) << "checkpoint 8" << std::endl;
+    FILE_LOG(logDEBUG4) << "checkpoint 7";
+    FILE_LOG(logDEBUG4) << "checkpoint 8";
     std::vector<double> tout;
     std::vector<double> yout_real;
     std::vector<double> yout_imag;
+    
+    FILE_LOG(logINFO) << "Before Integrate";
 
     if(basis_type.compare("RING") == 0) {
-        FILE_LOG(logDEBUG4) << "Before calling RING integrator" << std::endl;
-        integrate_const(make_controlled(1.0e-6, 1.0e-6, stepper_type()),
+        FILE_LOG(logDEBUG4) << "Before calling RING integrator";
+        integrate_const(make_controlled(1.0e-6, 1.0e-3, stepper_type()),
                         TDSSolvers_RING(), noise_vec,
                         *t_initial_pt, *t_final_pt, 0.1,
                         observer(tout, yout_real, yout_imag));
     }
 
     else if(basis_type.compare("UCF") == 0) {
-        FILE_LOG(logDEBUG4) << "Before calling UCF integrator" << std::endl;
-        integrate_const(make_controlled(1.0e-6, 1.0e-6, stepper_type()),
+        FILE_LOG(logDEBUG4) << "Before calling UCF integrator";
+        integrate_const(make_controlled(1.0e-6, 1.0e-3, stepper_type()),
                         TDSSolvers_UCF(), noise_vec,
                         *t_initial_pt, *t_final_pt, 0.1,
                         observer(tout, yout_real, yout_imag));
     }
 
     else if(basis_type.compare("FP") == 0) {
-        FILE_LOG(logDEBUG4) << "Before calling FP integrator" << std::endl;
-        integrate_const(make_controlled(1.0e-6, 1.0e-6, stepper_type()),
+        FILE_LOG(logDEBUG4) << "Before calling FP integrator";
+        integrate_const(make_controlled(1.0e-6, 1.0e-3, stepper_type()),
                         TDSSolvers_FP(), noise_vec,
                         *t_initial_pt, *t_final_pt, 0.1,
                         observer(tout, yout_real, yout_imag));
@@ -359,20 +363,21 @@ void mexFunction(int nlhs, mxArray *plhs[],
         exit(EXIT_FAILURE);
     }
 
-    FILE_LOG(logDEBUG4) << "before assigning output" << std::endl;
+    FILE_LOG(logINFO) << "After Integrate";
+    FILE_LOG(logDEBUG4) << "before assigning output";
     FILE_LOG(logDEBUG4) << num << std::endl;
     int index = 0;
     double * outT = (double *) mxMalloc(num * sizeof(double));
     FILE_LOG(logDEBUG4) << outT << std::endl;
-    FILE_LOG(logDEBUG4) << tout.size() << std::endl;
-    FILE_LOG(logDEBUG4) << "after malloc" << std::endl;
+    FILE_LOG(logDEBUG4) << tout.size();
+    FILE_LOG(logDEBUG4) << "after malloc";
 
     for(index = 0; index < num; index++) {
         FILE_LOG(logDEBUG4) << "in loop " << index << std::endl;
         outT[index] = tout[index];
     }
 
-    FILE_LOG(logDEBUG4) << "after first loop" << std::endl;
+    FILE_LOG(logDEBUG4) << "after first loop";
     double * outYr = (double *) mxMalloc(num * N * (N + 2) * sizeof(double));
     double * outYi = (double *) mxMalloc(num * N * (N + 2) * sizeof(double));
 
@@ -384,12 +389,12 @@ void mexFunction(int nlhs, mxArray *plhs[],
     mxSetPr(plhs[0], outT);
     mxSetM(plhs[0], num);
     mxSetN(plhs[0], 1);
-    FILE_LOG(logDEBUG4) << "in between assigning output" << std::endl;
+    FILE_LOG(logDEBUG4) << "in between assigning output";
     mxSetPr(plhs[1], outYr);
     mxSetPi(plhs[1], outYi);
     mxSetM(plhs[1], num);
     mxSetN(plhs[1], N * (N + 2));
-    FILE_LOG(logINFO) << "End of Mex Function" << std::endl;
+    FILE_LOG(logINFO) << "End of Mex Function";
     
     // Replace redirection
     std::cout.rdbuf(outbuf);
