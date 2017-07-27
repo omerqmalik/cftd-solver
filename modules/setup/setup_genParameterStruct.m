@@ -1,4 +1,4 @@
-function [S_setupdata,S_pumpdata] = setup_genParameterStruct(param_vecs,S_pumpdata,basis_type,rframe)
+function [S_setupdata,S_pumpdata] = setup_genParameterStruct(param_vecs,S_pumpdata,basis_type,cntrmode_type,rframe)
     t0        = S_pumpdata.t0;
     t1        = S_pumpdata.t1;
     cratio    = S_pumpdata.cratio;
@@ -54,16 +54,12 @@ function [S_setupdata,S_pumpdata] = setup_genParameterStruct(param_vecs,S_pumpda
     done_k_a = [];
     done_n   = [];
     for i = 1:leN
-        k_a   = param_vecs(i,1);
-        n     = param_vecs(i,2);
-        nCF   = param_vecs(i,3);
-        g_per = param_vecs(i,4);
-        g_par = param_vecs(i,5);
-        eps   = param_vecs(i,6);
-        
-        if nargin < 4
-            rframe = k_a;
-        end
+        cntrmode   = param_vecs(i,1);
+        n          = param_vecs(i,2);
+        nCF        = param_vecs(i,3);
+        g_per      = param_vecs(i,4);
+        g_par      = param_vecs(i,5);
+        eps        = param_vecs(i,6);
         
         %Name directories
         calc_dir    = ['num_' num2str(index)];
@@ -87,7 +83,7 @@ function [S_setupdata,S_pumpdata] = setup_genParameterStruct(param_vecs,S_pumpda
         mkdir([getenv('CFTD_TEMP_PATH') '/' temp_dir]);
         
         %Calculate/get basis
-        [CFvals,CFvecs,dx,nx,x,w_FSR,Na,M] = cavity_calcModes(basis_type,k_a,n,nCF,xdens);
+        [CFvals,CFvecs,dx,nx,x,w_FSR,Na,k_a,M] = cavity_calcModes(basis_type,cntrmode_type,n,nCF,xdens,cntrmode);
         basis_loc = [basis_dir '/' basis_type 'basis_nCF_' num2str(nCF) '_ka_' num2str(k_a) '_n_' num2str(n) '.mat'];
         save(basis_loc,'CFvals','CFvecs','basis_type','dx','nx','x','w_FSR','Na','M');
 
@@ -108,6 +104,10 @@ function [S_setupdata,S_pumpdata] = setup_genParameterStruct(param_vecs,S_pumpda
             done_n   = [done_n n];
         else
             integral_loc = [integral_dir '/TD_integrals_nCF_' num2str(nCF) '_ka_' num2str(k_a) '_n_' num2str(n) '.mat'];
+        end
+        
+        if nargin < 5
+            rframe = k_a;
         end
 
         %Get threshold

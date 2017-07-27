@@ -1,4 +1,4 @@
-function [CFvals,CFvecs,dx,nx,x,w_FSR,Na,M] = cavity_calcModes(basis_type,k_a,n,nCF,xdens)
+function [CFvals,CFvecs,dx,nx,x,w_FSR,Na,k_a,M] = cavity_calcModes(basis_type,cntrmode_type,n,nCF,xdens,cntrmode)
     %units: 
     %k_a    (unitless, k_a*L)
     %w_FSR  (unitless, w_FSR*L/c)
@@ -14,7 +14,15 @@ function [CFvals,CFvecs,dx,nx,x,w_FSR,Na,M] = cavity_calcModes(basis_type,k_a,n,
         basis_func = @(m,x) sqrt(2)*sin(pi*m*x);
     end
     
-    Na = round(k_a/real(w_FSR));        %central mode number
+    if strcmp(cntrmode_type,'ka')
+        k_a = cntrmode;
+        Na  = cavity_getNaFromOmegaa(k_a,w_FSR);        %central mode number
+    elseif strcmp(cntrmode_type,'Na')
+        Na  = cntrmode;
+%         k_a = cavity_getOmegaaFromNa(Na,w_FSR);         %to compensate for line-pulling
+        k_a = Na*real(w_FSR);                             %otherwise
+    end
+    
     if mod(nCF,2) == 0
         M = (Na-nCF/2):(Na+(nCF/2-1));
     else
@@ -37,7 +45,7 @@ function [CFvals,CFvecs,dx,nx,x,w_FSR,Na,M] = cavity_calcModes(basis_type,k_a,n,
         end
     elseif strcmp(basis_type,'UCF')
         nVec = ones(1,length(x))*n;
-        [CFvals,CFvecs] = cavity_calcUCFModes(k_a,k_a,nVec,1,1,nCF,fix(nx),dx);
+        [CFvals,CFvecs] = cavity_calcUCFModes(k_a,k_a,nVec,Inf,1,nCF,fix(nx),dx);
         w_FSR = mean(diff(sort(real(CFvals))));
     end
     
