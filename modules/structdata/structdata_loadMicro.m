@@ -5,4 +5,5 @@ function S_structdata = structdata_loadMicro(cav_dir,data_dir,num,data_id,data_t
     S_structdata   = structdata_getGeneralProperties(data_id,data_type,S_setupdata,calc_times,pstep);
     S_structdata.t = t;
     S_structdata.Y = Y;
+    S_structdata.psteps = pstep;
 end

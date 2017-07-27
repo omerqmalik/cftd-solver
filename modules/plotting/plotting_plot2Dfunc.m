@@ -12,6 +12,8 @@ function [f,h] = plotting_plot2Dfunc(x,y,S_fig)
             c = autumn(size(y,2));
         elseif strcmp(S_fig.colormap,'lines')
             c = lines(size(y,2));
+        elseif strcmp(S_fig.colormap,'jet')
+            c = jet(size(y,2));
         end
         h = plot_func(x,y(:,1),'color',c(1,:));
         hold on;

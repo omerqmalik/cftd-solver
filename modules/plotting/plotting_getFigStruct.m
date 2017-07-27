@@ -78,7 +78,13 @@ function S_fig = plotting_getFigStruct(S_structdata,fig_type,opt_islin,opt_isdec
         S_fig.x_label = '$x$';
         S_fig.y_label = '$E(x,t_0)$';
         
-        title_str = [title_str ', D0=' num2str(S_structdata.pump/S_structdata.th,'%.2f') ', tstep=' num2str(S_structdata.t(S_structdata.t_ind))];
+        S_fig.colormap = 'jet';
+        
+        if length(S_structdata.t_ind) == 1
+            title_str = [title_str ', D0=' num2str(S_structdata.pump/S_structdata.th,'%.2f') ', tstep=' num2str(S_structdata.t(S_structdata.t_ind))];
+        else
+            title_str = [title_str ', D0=' num2str(S_structdata.pump/S_structdata.th,'%.2f') ', tstep=' num2str(S_structdata.t(S_structdata.t_ind(1))) '-' num2str(S_structdata.t(S_structdata.t_ind(end)))];
+        end
     end
     
     if size(S_structdata.calc_times,2) > 1      %multiple pump steps

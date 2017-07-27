@@ -8,12 +8,20 @@ function F = plotting_makeMovie(plot_func,frame_var1,frame_var2)
     num_frames = length(frame_var1);
     F(num_frames) = struct('cdata',[],'colormap',[]);
     drawnow
+    
+    %uncomment line below to control xlim/ylim
+%     set(gca,'ylim',[0 50]);
+    
     F(1) = getframe(gcf);
     close(f);
     for j = 2:num_frames
         f = plot_func(frame_var1(j),frame_var2(j));
-        drawnow
         axis tight manual
+        drawnow
+        
+        %uncomment line below to control xlim/ylim
+%         set(gca,'ylim',[0 50]);
+
         F(j) = getframe(gcf);
         close(f);
     end
