@@ -45,7 +45,7 @@ function [CFvals,CFvecs,dx,nx,x,w_FSR,Na,k_a,M] = cavity_calcModes(basis_type,cn
         end
     elseif strcmp(basis_type,'UCF')
         nVec = ones(1,length(x))*n;
-        [CFvals,CFvecs] = cavity_calcUCFModes(k_a,k_a,nVec,Inf,1,nCF,fix(nx),dx);
+        [CFvals,CFvecs] = cavity_calcUCFModes(k_a,k_a,nVec,1,1,nCF,fix(nx),dx);
         w_FSR = mean(diff(sort(real(CFvals))));
     end
     

@@ -1,4 +1,4 @@
-function S_structdata = structdata_load(cav_dir,num,data_id,data_type,chunk,varargin)
+function S_structdata = structdata_load(cav_dir,num,data_id,data_type,chunk,x0,varargin)
     S_setupdata = setup_loadParameters(cav_dir,num);
     calc_times  = benchmark_loadTimes([cav_dir '/' S_setupdata.times_dir]);
     
@@ -25,4 +25,5 @@ function S_structdata = structdata_load(cav_dir,num,data_id,data_type,chunk,vara
     S_structdata.t = t;
     S_structdata.Y = Y;
     S_structdata.psteps = psteps;
+    S_structdata.x0 = x0;
 end

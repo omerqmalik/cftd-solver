@@ -1,4 +1,4 @@
-function userplot_saveFigures(cav_dir,num,results_dir)
+function userplot_saveFigures(cav_dir,num,x0,results_dir)
 
     %create directories
     savedir_2DfieldFFT  = [results_dir '/2DfieldFFT'];
@@ -19,15 +19,15 @@ function userplot_saveFigures(cav_dir,num,results_dir)
     end
 
     %Load coeffs data and also convert to array
-    S_EcoeffsAll   = structdata_load(cav_dir,num,'E','coeffs',1);
+    S_EcoeffsAll   = structdata_load(cav_dir,num,'E','coeffs',1,x0);
     S_EcoeffsArray = structdata_getDataArray(S_EcoeffsAll,'pump');
     
     %Load field data and also convert to array
-    S_EfieldAll    = structdata_load(cav_dir,num,'E','field',1);
+    S_EfieldAll    = structdata_load(cav_dir,num,'E','field',1,x0);
     S_EfieldArray  = structdata_getDataArray(S_EfieldAll,'pump');
     
     %Load Davgabs data and also convert to array
-    S_DavgabsAll   = structdata_load(cav_dir,num,'D','avgabs',0);
+    S_DavgabsAll   = structdata_load(cav_dir,num,'D','avgabs',0,x0);
     S_DavgabsArray = structdata_getDataArray(S_DavgabsAll,'pump');
     
     if strcmp(S_EcoeffsAll.pump_type,'hysteresis')
