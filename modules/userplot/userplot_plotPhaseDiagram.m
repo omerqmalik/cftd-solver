@@ -1,11 +1,11 @@
-function fldcorr_all = userplot_plotPhaseDiagram(cav_dir,num,teeth,delta)
+function fldcorr_all = userplot_plotPhaseDiagram(cav_dir,num,teeth,delta,x0)
 
     %Load coeffs data and also convert to array
-    S_EcoeffsAll    = structdata_load(cav_dir,num,'E','coeffs',1);
+    S_EcoeffsAll    = structdata_load(cav_dir,num,'E','coeffs',1,x0);
     [~,CFvecs,~,x] = cavity_loadBasis(S_EcoeffsAll.basis_loc,S_EcoeffsAll.k_a);
     width = cavity_getBasisRange(S_EcoeffsAll.CFvals);
     
-    temporal_data   = userdata_calcTemporalField(S_EcoeffsAll.Y,CFvecs,x);
+    temporal_data   = userdata_calcTemporalField(S_EcoeffsAll.Y,CFvecs,x,S_EcoeffsAll.x0);
     [w,~,fftw_mag]  = userdata_calcFFT(S_EcoeffsAll.t,temporal_data,S_EcoeffsAll.rframe);
     [w,fftw_mag]    = userdata_truncFFT(w,fftw_mag,S_EcoeffsAll.rframe,width,1);
     

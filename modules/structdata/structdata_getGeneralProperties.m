@@ -1,7 +1,6 @@
 function S_structdata = structdata_getGeneralProperties(data_id,data_type,S_setupdata,calc_times,psteps)
     S_structdata.id          = data_id;
     S_structdata.type        = data_type;
-    S_structdata.calc_times  = calc_times(:,psteps);
     S_structdata.pump        = S_setupdata.pump(psteps);
     S_structdata.k_a         = S_setupdata.k_a;
     S_structdata.n           = S_setupdata.n;
@@ -20,5 +19,11 @@ function S_structdata = structdata_getGeneralProperties(data_id,data_type,S_setu
         S_structdata.Na    = S_setupdata.Na;
         S_structdata.M     = S_setupdata.M;
         S_structdata.w_FSR = S_setupdata.w_FSR;
+    end
+    
+    if size(calc_times,2) == 1
+        S_structdata.calc_times = calc_times;
+    else
+        S_structdata.calc_times  = calc_times(:,psteps);
     end
 end

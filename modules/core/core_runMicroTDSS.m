@@ -1,13 +1,13 @@
-function core_runMicroTDSS(cav_dir,num,pstep,t0,t1,cratio)
+function core_runMicroTDSS(cav_dir,num,pstep,x0,t0,t1,cratio)
     clearvars -global
     addpath(genpath('/tigress/omalik/Time Dynamics/cftd-solver/modules'));
     
-    S_coredata = core_init(cav_dir,num,'micro',t0,t1,cratio,pstep);
+    S_coredata = core_init(cav_dir,num,'micro',x0,t0,t1,cratio,pstep);
     
     time_all = zeros(1,pstep);
     tstart_all = tic;
     fprintf('pstep %g\nD0=%f\n',pstep,S_coredata.pump(pstep));
-    S_coredata.calc_times = core_calcCoeffs(S_coredata,pstep,1,1,1);
+    S_coredata.calc_times = core_calcCoeffs(S_coredata,pstep,[1,1,1,1],[1,0,1,0],[1,1,0,0]);
     time_all(pstep)=toc(tstart_all);
     fprintf('Total time: %f\n',time_all);
     

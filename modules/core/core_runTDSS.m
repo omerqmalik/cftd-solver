@@ -4,9 +4,13 @@ function core_runTDSS(cav_dir,num,pgroup)
 
     addpath(genpath('/tigress/omalik/Time Dynamics/cftd-solver/modules'));
     
+    x0 = 0.327;
+    
     fprintf('num: %d\npgroup: %d\n',num,pgroup);
-    S_coredata = core_init(cav_dir,num,'macro',pgroup);
+    
+    S_coredata = core_init(cav_dir,num,'macro',x0,pgroup);
     set(0,'DefaultFigureVisible','off');
+    
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                 TIME DYNAMICAL CALCULATION STARTS HERE                  %
@@ -23,7 +27,7 @@ function core_runTDSS(cav_dir,num,pgroup)
         end
         
         %calculate and save
-        [S_coredata.calc_times(:,pgstep)] = core_calcCoeffs(S_coredata,pstep,1,1,0);
+        [S_coredata.calc_times(:,pgstep)] = core_calcCoeffs(S_coredata,pstep,[1,1,1,1],[1,0,1,0],[0,0,0,0]);
         
         if strcmp(S_coredata.pump_type,'hysteresis') && i < length(S_coredata.pump_ind)
             [~,Y_last] = core_loadCheckpoints(core_getCheckpointFn(pstep,S_coredata.cp_dir));
@@ -55,7 +59,7 @@ function core_runTDSS(cav_dir,num,pgroup)
         fprintf(' complete.\n');
         
         fprintf('Making figures...');
-        userplot_saveFigures(cav_dir,num,S_coredata.results_dir);
+        userplot_saveFigures(cav_dir,num,x0,S_coredata.results_dir);
         fprintf(' complete.\n');
     end
     set(0,'DefaultFigureVisible','on');

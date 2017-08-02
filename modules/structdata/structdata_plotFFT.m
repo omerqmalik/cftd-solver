@@ -2,7 +2,7 @@ function f = structdata_plotFFT(S_structdata,S_fig)
     if strcmp(S_fig.type,'2DfieldFFT') || strcmp(S_fig.type,'3DfieldFFT')
         if strcmp(S_structdata.type,'coeffs')
             [~,CFvecs,~,x] = cavity_loadBasis(S_structdata.basis_loc,S_structdata.k_a);
-            temporal_data  = userdata_calcTemporalField(S_structdata.Y,CFvecs,x);
+            temporal_data  = userdata_calcTemporalField(S_structdata.Y,CFvecs,x,S_structdata.x0);
         elseif strcmp(S_structdata.type,'field')
             temporal_data = S_structdata.Y;
         end

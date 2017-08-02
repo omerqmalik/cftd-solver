@@ -1,4 +1,4 @@
-function S_coredata = core_init(cav_dir,num,calc_type,varargin)
+function S_coredata = core_init(cav_dir,num,calc_type,x0,varargin)
     load([cav_dir '/TD_init_parameters.mat'],'S_setupdata','S_pumpdata');
     load([cav_dir '/' S_setupdata(num).integral_loc]);
     calc_dir = [cav_dir '/' S_setupdata(num).calc_dir]
@@ -24,6 +24,7 @@ function S_coredata = core_init(cav_dir,num,calc_type,varargin)
     %Other parameters
     S_coredata.nCF          = S_setupdata(num).nCF;          %# of CF states
     [~,S_coredata.CFvecs]   = cavity_loadBasis([cav_dir '/' S_setupdata(num).basis_loc],S_setupdata(num).k_a);
+    S_coredata.x0           = x0;
     
     %Parameters used by macro calculation
     if strcmp(calc_type,'macro')
@@ -48,13 +49,13 @@ function S_coredata = core_init(cav_dir,num,calc_type,varargin)
         %Get starting pump step/index and pumpgroup
         S_coredata.calc_times = benchmark_loadTimeFile(S_coredata.times_dir,pgroup);
         [S_coredata.pump_ind,S_coredata.pumpgrp_ind] = pump_getPumpForTDSSolver(S_coredata.calc_times,S_setupdata(num).pump,S_pumpdata.pg_len,S_pumpdata.type,varargin{1});
-    elseif strcmp(calc_type,'micro')
+    elseif strcmp(calc_type,'micro') || strcmp(calc_type,'inv')
         t0     = varargin{1};
         t1     = varargin{2};
         cratio = varargin{3};
         pstep  = varargin{4};
         
-        pre_dir  = [calc_dir '/micro/p_' num2str(pstep) '_t0_' num2str(t0) '_t1_' num2str(t1)];
+        pre_dir  = [calc_dir '/' calc_type '/p_' num2str(pstep) '_t0_' num2str(t0) '_t1_' num2str(t1)];
         
         [~,data_dir]    = fileparts(S_setupdata(num).data_dir);
         [~,times_dir]   = fileparts(S_setupdata(num).times_dir);

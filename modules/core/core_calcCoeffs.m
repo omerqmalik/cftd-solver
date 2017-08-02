@@ -32,17 +32,17 @@ function calc_times = core_calcCoeffs(S_coredata,pstep,issave_e,issave_p,issave_
         noise_vec = Y(end,:);
         
         rawdata_save([T(1) T(end)],mean(abs(Y(:,(2*S_coredata.nCF+1):end))).',S_coredata.temp_dir,'D','avgabs',pstep,j);
-        if issave_d
+        if issave_d(1) == 1
             rawdata_save(T,Y(:,S_coredata.Dsave),S_coredata.temp_dir,'D','coeffs',pstep,j);
         end
         Y = Y(:,1:2*S_coredata.nCF);
 
         %Save e_m and p_m
-        if issave_e
+        if issave_e(1) == 1
             rawdata_save(T,Y(:,1:S_coredata.nCF),S_coredata.temp_dir,'E','coeffs',pstep,j);
         end
         
-        if issave_p
+        if issave_p(1) == 1
             rawdata_save(T,Y(:,(S_coredata.nCF+1):2*S_coredata.nCF),S_coredata.temp_dir,'P','coeffs',pstep,j);
         end
         if (benchmarking)        
@@ -55,16 +55,17 @@ function calc_times = core_calcCoeffs(S_coredata,pstep,issave_e,issave_p,issave_
     if (benchmarking) 
         fprintf('Total time: %fs\n\n',sum(calc_times));
     end
-    if issave_e
-        diag_save1DCalcData(S_coredata,'E','coeffs',pstep,1,1,1);
+    
+    if issave_e(1) == 1
+        diag_save1DCalcData(S_coredata,'E','coeffs',pstep,issave_e(2),issave_e(3),issave_e(4));
     end
     
-    if issave_p
-        diag_save1DCalcData(S_coredata,'P','coeffs',pstep,0,1,0);
+    if issave_p(1) == 1
+        diag_save1DCalcData(S_coredata,'P','coeffs',pstep,issave_p(2),issave_p(3),issave_p(4));
     end
     
-    if issave_d
-        diag_save1DCalcData(S_coredata,'D','coeffs',pstep,1,0,0);
+    if issave_d(1) == 1
+        diag_save1DCalcData(S_coredata,'D','coeffs',pstep,issave_d(2),issave_p(3),issave_p(4));
+        diag_save2DCalcData(S_coredata,'D','avgabs',pstep);
     end
-    diag_save2DCalcData(S_coredata,'D','avgabs',pstep);
 end

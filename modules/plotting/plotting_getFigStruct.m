@@ -6,6 +6,8 @@ function S_fig = plotting_getFigStruct(S_structdata,fig_type,opt_islin,opt_isdec
         S_fig.x_label = 'pump';
         S_fig.y_label = 'w';
         S_fig.z_label = {['$|FFT[' S_structdata.id '(x_0,t)]|$']};
+        
+        title_str = [title_str ', x0=' num2str(S_structdata.x0)];
     elseif strcmp(fig_type,'3DcoeffsFFT')
         S_fig.x_label = 'pump';
         S_fig.y_label = 'w';
@@ -17,7 +19,7 @@ function S_fig = plotting_getFigStruct(S_structdata,fig_type,opt_islin,opt_isdec
         S_fig.x_label = 'w';
         S_fig.y_label = {['$|FFT[' S_structdata.id '(x_0,t)]|$']};
 
-        title_str = [title_str ', D0=' num2str(S_structdata.pump/S_structdata.th,'%.2f') '(pstep ' num2str(S_structdata.psteps) ')'];
+        title_str = [title_str ', D0=' num2str(S_structdata.pump/S_structdata.th,'%.2f') '(pstep ' num2str(S_structdata.psteps) '), x0=' num2str(S_structdata.x0)];
     elseif strcmp(fig_type,'2DcoeffsFFT')
         S_fig.islin = opt_islin;
         S_fig.isdec = opt_isdec;
@@ -63,7 +65,7 @@ function S_fig = plotting_getFigStruct(S_structdata,fig_type,opt_islin,opt_isdec
         if length(S_structdata.pump) == 1            
             title_str = [title_str ', D0=' num2str(S_structdata.pump/S_structdata.th,'%.2f')];
         else
-            title_str = [title_str ', D0=' num2str(S_structdata.pump/S_structdata.th,'%.2f') '-' num2str(S_structdata.pump/S_structdata.th,'%.2f')];
+            title_str = [title_str ', D0=' num2str(S_structdata.pump/S_structdata.th,'%.2f') '-' num2str(S_structdata.pump/S_structdata.th,'%.2f') ', x0=' num2str(S_structdata.x0)];
         end
     elseif strcmp(fig_type,'DmnAVGABS')
         S_fig.x_label = 'n';
@@ -78,7 +80,13 @@ function S_fig = plotting_getFigStruct(S_structdata,fig_type,opt_islin,opt_isdec
         S_fig.x_label = '$x$';
         S_fig.y_label = '$E(x,t_0)$';
         
-        title_str = [title_str ', D0=' num2str(S_structdata.pump/S_structdata.th,'%.2f') ', tstep=' num2str(S_structdata.t(S_structdata.t_ind))];
+        S_fig.colormap = 'jet';
+        
+        if length(S_structdata.t_ind) == 1
+            title_str = [title_str ', D0=' num2str(S_structdata.pump/S_structdata.th,'%.2f') ', tstep=' num2str(S_structdata.t(S_structdata.t_ind)) ', x0=' num2str(S_structdata.x0)];
+        else
+            title_str = [title_str ', D0=' num2str(S_structdata.pump/S_structdata.th,'%.2f') ', tstep=' num2str(S_structdata.t(S_structdata.t_ind(1))) '-' num2str(S_structdata.t(S_structdata.t_ind(end))) ', x0=' num2str(S_structdata.x0)];
+        end
     end
     
     if size(S_structdata.calc_times,2) > 1      %multiple pump steps

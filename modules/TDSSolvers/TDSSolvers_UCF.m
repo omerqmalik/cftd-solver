@@ -11,5 +11,5 @@ function dy = TDSSolvers_UCF(t,y,g_per,g_par,k_a,CFvals,A,B,pump_pwr,N)
 
     dy = [(k_a-CFvals.^2/k_a)*1i*0.5.*a_vec + 1i*k_a*0.5*(b_vec.'*B).'; ...
           -g_per*b_vec - 1i*g_per*(a_vec.'*D_mat).'; ...
-          -g_par*(D_vec - pump_pwr) + 1i*g_par*NL_term];
+          -g_par*(D_vec - pump_pwr) + 1i*g_par*0.5*NL_term];
 end

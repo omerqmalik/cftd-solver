@@ -16,7 +16,7 @@ function diag_save1DCalcData(S_coredata,data_id,data_type,pstep,issaveCoeffs,isp
         %Save field
         if issaveField
             T_next      = T_this;
-            Yfield_next = userdata_calcTemporalField(Y_this,CFvecs,x);
+            Yfield_next = userdata_calcTemporalField(Y_this,CFvecs,x,S_coredata.x0);
             rawdata_saveFieldContinuously(T_next,Yfield_next,S_coredata.data_dir,data_id,'field',pstep,i);
             clear Y_next;
         end

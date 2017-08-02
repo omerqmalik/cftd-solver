@@ -1,7 +1,7 @@
 function f = structdata_plotTemporalWaveform(S_structdata,S_fig)
     if strcmp(S_structdata.type,'coeffs')
         [~,CFvecs,~,x] = cavity_loadBasis(S_structdata.basis_loc,S_structdata.k_a);
-        field_t    = userdata_calcTemporalField(S_structdata.Y,CFvecs,x);
+        field_t    = userdata_calcTemporalField(S_structdata.Y,CFvecs,x,S_structdata.x0);
     elseif strcmp(S_structdata.type,'field')
         field_t = S_structdata.Y;
     end
