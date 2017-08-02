@@ -1,3 +1,7 @@
+
+
+// Source: Dr. Dobbs Journal
+// Modified to write to cout instead of stderr
 #ifndef __LOG1_H__
 #define __LOG1_H__
 
@@ -15,7 +19,7 @@ class Log
 public:
     Log();
     virtual ~Log();
-    std::ostringstream& Get(TLogLevel level = logINFO);
+    std::ostringstream& Get(TLogLevel level = logWARNING);
 public:
     static TLogLevel& ReportingLevel();
     static std::string ToString(TLogLevel level);

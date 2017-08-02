@@ -1,11 +1,7 @@
 function core_runTDSS(cav_dir,num,pgroup)
-    clearvars -global
+    %clearvars -global % moved to run script (blade_runner)
     global benchmarking;
-    global usingc;
-    global save_ode_params;
-    usingc = true;
-    benchmarking = true;
-    save_ode_params = true;
+
     addpath(genpath('/tigress/omalik/Time Dynamics/cftd-solver/modules'));
     
     fprintf('num: %d\npgroup: %d\n',num,pgroup);

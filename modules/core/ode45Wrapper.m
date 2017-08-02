@@ -1,8 +1,8 @@
 function [T, Y] = ode45Wrapper(S_coredata, pstep, tv ,noise_vec, opts)
 %ODE45WRAPPER Summary of this function goes here
 %   Detailed explanation goes here
-
-global usingc;
+global ode_options;
+persistent save_ode_params;
 
     g_per      = S_coredata.g_per;
     g_par      = S_coredata.g_par;
@@ -16,11 +16,15 @@ global usingc;
     basis_type = S_coredata.basis_type;
     pump_pwr = pump(pstep)*D0_vec;
 
-if (usingc)
-    
-    
+if (ode_options.use_ode_cpp)
+        
     t_initial = tv(1);
     t_final = tv(2);
+    
+    if  isempty(save_ode_params)
+        save('sd_data.mat', 'S_coredata', 'pump_pwr', 't_initial', 't_final', 'noise_vec', 'basis_type');
+        save_ode_params = false;
+    end
     
     [T, Y] = runge_kutta4(S_coredata, pump_pwr, t_initial, t_final, noise_vec, basis_type);
     Y = Y';
