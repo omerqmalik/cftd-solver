@@ -1,7 +1,7 @@
 function calc_times = core_calcCoeffs(S_coredata,pstep,issave_e,issave_p,issave_d)
     global benchmarking;
-
-    %Generate appropriate function handle
+    
+    fID = fopen('mem_file.txt','a');
     
     
     
@@ -47,7 +47,10 @@ function calc_times = core_calcCoeffs(S_coredata,pstep,issave_e,issave_p,issave_
         end
         if (benchmarking)        
             %bookkeeping
-            fprintf('iteration %g: %fs\n',j,calc_times(j));
+            fprintf('iteration %g: %fs, memory: %d\n',j,calc_times(j),java.lang.Runtime.getRuntime.totalMemory);
+            fprintf(fID,"%d\t", java.lang.Runtime.getRuntime.totalMemory);
+            fprintf(fID,"Pstep %d, iteration %d\n", pstep, j);
+            log_memory("INFO", "Pstep %d, iteration %d\n", pstep, j);
             benchmark_saveTimeForPstep(S_coredata.times_dir,pstep,calc_times);
             core_saveCheckpoints(tvec(j+1),noise_vec.',core_getCheckpointFn(pstep,S_coredata.cp_dir));
         end
@@ -68,4 +71,6 @@ function calc_times = core_calcCoeffs(S_coredata,pstep,issave_e,issave_p,issave_
         diag_save1DCalcData(S_coredata,'D','coeffs',pstep,issave_d(2),issave_p(3),issave_p(4));
         diag_save2DCalcData(S_coredata,'D','avgabs',pstep);
     end
+    
+    fclose(fID);
 end

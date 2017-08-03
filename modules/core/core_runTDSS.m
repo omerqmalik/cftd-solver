@@ -1,7 +1,9 @@
 function core_runTDSS(cav_dir,num,pgroup)
     %clearvars -global % moved to run script (blade_runner)
     global benchmarking;
-
+    
+    delete mem_file.txt;
+    
     addpath(genpath('/tigress/omalik/Time Dynamics/cftd-solver/modules'));
     
     x0 = 0.327;

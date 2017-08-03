@@ -201,7 +201,7 @@ public:
         bnu::scalar_vector<std::complex<double>> k_avec(a_vec.size(), params.k_a);
 		ustate_type dy1 = element_prod((k_avec - (element_prod(params.CFvals, params.CFvals) / params.k_a)), (halfI * a_vec)) + (halfI * params.k_a * b_vecT_B);
 		ustate_type dy2 = -params.g_per * b_vec1 - oneI * params.g_per * a_vecT_D_mat;
-		ustate_type dy3 = -params.g_par * (D_vec - params.pump_pwr) + oneI * params.g_par * NL_term;
+		ustate_type dy3 = -params.g_par * (D_vec - params.pump_pwr) + halfI * params.g_par * NL_term;
 
 		state_type::iterator oi = std::copy_n(dy1.begin(), dy1.size(), dy.begin());
         oi = std::copy_n(dy2.begin(), dy2.size(), oi);

@@ -6,6 +6,9 @@ function set_defaults()
     
     global benchmarking;
     benchmarking = true;
+    
+    global mem_log_file;
+    mem_log_file = 'mem_log.csv';
 end
 
 
