@@ -48,9 +48,11 @@ function calc_times = core_calcCoeffs(S_coredata,pstep,issave_e,issave_p,issave_
         if (benchmarking)        
             %bookkeeping
             fprintf('iteration %g: %fs, memory: %d\n',j,calc_times(j),java.lang.Runtime.getRuntime.totalMemory);
-            fprintf(fID,"%d\t", java.lang.Runtime.getRuntime.totalMemory);
-            fprintf(fID,"Pstep %d, iteration %d\n", pstep, j);
-            log_memory("INFO", "Pstep %d, iteration %d\n", pstep, j);
+            
+            %fprintf(fID,"%s %s \t %d", system('hostname'), feature('getpid'), java.lang.Runtime.getRuntime.totalMemory);
+            %fprintf(fID,"Pstep %d, iteration %d\n", pstep, j);
+            
+            
             benchmark_saveTimeForPstep(S_coredata.times_dir,pstep,calc_times);
             core_saveCheckpoints(tvec(j+1),noise_vec.',core_getCheckpointFn(pstep,S_coredata.cp_dir));
         end

@@ -22,11 +22,11 @@ if (ode_options.use_ode_cpp)
     t_final = tv(2);
     
     if  isempty(save_ode_params)
-        save('sd_data.mat', 'S_coredata', 'pump_pwr', 't_initial', 't_final', 'noise_vec', 'basis_type');
+        save('sd_data.mat', 'S_coredata', 'pump_pwr', 't_initial', 't_final', 'noise_vec', 'basis_type', 'ode_options');
         save_ode_params = false;
     end
     
-    [T, Y] = runge_kutta4(S_coredata, pump_pwr, t_initial, t_final, noise_vec, basis_type);
+    [T, Y] = runge_kutta4(S_coredata, pump_pwr, t_initial, t_final, noise_vec, basis_type, ode_options);
     Y = Y';
     
 else

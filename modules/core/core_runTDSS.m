@@ -28,9 +28,16 @@ function core_runTDSS(cav_dir,num,pgroup)
             fprintf('pstep %g\nD0=%f\n',pstep,S_coredata.pump(pstep));
         end
         
-        %calculate and save
-        [S_coredata.calc_times(:,pgstep)] = core_calcCoeffs(S_coredata,pstep,[1,1,1,1],[1,0,1,0],[0,0,0,0]);
+        %log_memory("pstep-%d,begin", pstep);
+        from = datetime('now','TimeZone','local');
+        from_mem = java.lang.Runtime.getRuntime.totalMemory;
         
+        %calculate and save
+        [S_coredata.calc_times(:,pgstep)] = ...
+        core_calcCoeffs(S_coredata,pstep,[1,1,1,1],[1,0,1,0],[0,0,0,0]);
+    
+        log_memory(from, datetime('now','TimeZone','local'), "pstep-%d,%d", pstep,from_mem);
+       
         if strcmp(S_coredata.pump_type,'hysteresis') && i < length(S_coredata.pump_ind)
             [~,Y_last] = core_loadCheckpoints(core_getCheckpointFn(pstep,S_coredata.cp_dir));
             core_saveCheckpoints(S_coredata.tvec(1),Y_last(:,end),core_getCheckpointFn(pstep+1,S_coredata.cp_dir));

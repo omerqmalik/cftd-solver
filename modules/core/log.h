@@ -1,7 +1,3 @@
-
-
-// Source: Dr. Dobbs Journal
-// Modified to write to cout instead of stderr
 #ifndef __LOG1_H__
 #define __LOG1_H__
 
@@ -19,7 +15,7 @@ class Log
 public:
     Log();
     virtual ~Log();
-    std::ostringstream& Get(TLogLevel level = logWARNING);
+    std::ostringstream& Get(TLogLevel level = logINFO);
 public:
     static TLogLevel& ReportingLevel();
     static std::string ToString(TLogLevel level);
@@ -94,6 +90,11 @@ typedef Log FILELog;
 #define FILE_LOG(level) \
     if (level > FILELog::ReportingLevel()) ; \
     else Log().Get(level)
+
+inline TLogLevel getLogLevel(const char* plevel)
+{
+	return Log().FromString(std::string(plevel));
+}
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
 
