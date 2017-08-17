@@ -10,3 +10,12 @@ test_calc_RING/*
 test_calc_FP/*
 !test_calc_FP/run_ml_Nmode.cmd
 !test_calc_FP/TD_D0_parameters.m
+num_1/
+num_2/
+modules/core/boost/
+modules/TDSSolvers/num_1/
+modules/TDSSolvers/num_2/
+modules/core/num_1/
+modules/core/num_2/
+*.mat
+for_bash
