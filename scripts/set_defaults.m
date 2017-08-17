@@ -2,7 +2,7 @@ function set_defaults()
     global ode_options;
     global mem_log_file;
     
-    mem_log_file = "../../perf/inside_mem_log.txt";
+    mem_log_file = "/tmp/inside_mem_log.txt";
     
     %Clear out mem_log_file
     temp_fid = fopen(mem_log_file, 'wt');

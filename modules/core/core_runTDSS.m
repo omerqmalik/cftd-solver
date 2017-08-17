@@ -25,7 +25,7 @@ function core_runTDSS(cav_dir,num,pgroup)
         pstep  = S_coredata.pump_ind(i);
         pgstep = S_coredata.pumpgrp_ind(i);
         if (benchmarking) 
-            fprintf('pstep %g\nD0=%f\n',pstep,S_coredata.pump(pstep));
+            fprintf('pstep %g\nD0=%f\n', pstep, S_coredata.pump(pstep));
         end
         
         %log_memory("pstep-%d,begin", pstep);
@@ -36,7 +36,7 @@ function core_runTDSS(cav_dir,num,pgroup)
         [S_coredata.calc_times(:,pgstep)] = ...
         core_calcCoeffs(S_coredata,pstep,[1,1,1,1],[1,0,1,0],[0,0,0,0]);
     
-        log_memory(from, datetime('now','TimeZone','local'), "pstep-%d,%d", pstep,from_mem);
+        log_memory(from, datetime('now','TimeZone','local'), "pstep-%d,%d", pstep, from_mem);
        
         if strcmp(S_coredata.pump_type,'hysteresis') && i < length(S_coredata.pump_ind)
             [~,Y_last] = core_loadCheckpoints(core_getCheckpointFn(pstep,S_coredata.cp_dir));

@@ -1,7 +1,3 @@
-
-RUN_CMD="/Applications/MATLAB_R2017a.app/bin/matlab -nodisplay -nosplash -nodesktop -r run('~/Dropbox/dev/cftd-solver/modules/core/blade_runner.m');exit;"
-export RUN_CMD
-
 PROGRAM_NAME="/Applications/MATLAB_R2017a.app/bin/matlab"
 export PROGRAM_NAME
 
@@ -22,6 +18,6 @@ export PERF_OUTPUT
 MATLAB_SETTINGS=
 export MATLAB_SETTINGS
 
-PROGRAM_ARGS="-nodisplay -nosplash -nodesktop -r $MATLAB_SETTINGS run('~/Dropbox/dev/cftd-solver/modules/core/blade_runner.m');exit;"
+PROGRAM_ARGS="-nodisplay -nosplash -nodesktop -r $MATLAB_SETTINGS run('../modules/core/blade_runner.m');exit;"
 export PROGRAM_ARGS
 

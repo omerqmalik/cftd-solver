@@ -1,4 +1,6 @@
-#pragma once
+#ifndef OUTPUT_H
+#define OUTPUT_H
+
 #include <streambuf>
 #include <ostream>
 
@@ -19,3 +21,5 @@ protected:
     return 1;
   }
 }; 
+
+#endif /* OUTPUT_H */

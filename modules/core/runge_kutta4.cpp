@@ -31,19 +31,13 @@ void mexFunction(int nlhs, mxArray *plhs[],
     //g_per is a value that is used to calculate the next state
 	params.g_per = *mxGetPr(mxGetField(prhs[0], 0, "g_per"));
     
-    
-    
     //Get g_par from S_coredata
     //g_par is a value that is used to calculate the next state
 	params.g_par = *mxGetPr(mxGetField(prhs[0], 0, "g_par"));
     
-    
-    
     //Get k_a from S_coredata
     //k_a is a value that is used to calculate the next state
 	params.k_a = *mxGetPr(mxGetField(prhs[0], 0, "k_a"));
-    
-    
     
     //Get basis_type from inputs
     //basis_type is a string that represents the type of Solver to be used
@@ -57,14 +51,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
     //free the temporary pointer
 	mxFree(temp_basis_type);
     
-    
-    
-    
     //get N from S_coredata
     //N is the size of CFvals
 	params.N = mxGetDimensions(mxGetField(prhs[0], 0, "CFvals"))[0];
-    
-    
     
     //get A from S_coredata
     //A is a matrix used to calculate the next state
@@ -85,8 +74,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
 			params.A(i, j) = ptA[i + j * dimA];
 		}
 	}
-    
-    
     
 	//get the matrix B from S_coredata
     //B is a matrix used to calculate the next state
@@ -109,11 +96,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
 		}
 	}
     
-    
-    
     //get CFvals from S_coredata
     //CFvals is a complex double 
-    
     //get both a real and imaginary pointer to CFvals
 	double * CFvalsReal = (double *)mxGetPr(mxGetField(prhs[0], 0, "CFvals"));
 	double * CFvalsImag = (double *)mxGetPi(mxGetField(prhs[0], 0, "CFvals"));
@@ -126,11 +110,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 		params.CFvals[i] = std::complex<double>(CFvalsReal[i], CFvalsImag[i]);
 	}
     
-    
-    
-    
     //get the pump power from input
-    
     //get a pointer to pump_pwr
 	auto pump_pt = mxGetPr(prhs[1]);
     
@@ -141,22 +121,12 @@ void mexFunction(int nlhs, mxArray *plhs[],
 	for (int i = 0; i < params.pump_pwr.size(); i++)
 		params.pump_pwr[i] = pump_pt[i];
     
-    
-    
-    
-    //get n (little n) from S_coredata
-    
     //get the real and imaginary part of n
 	double re = *mxGetPr(mxGetField(prhs[0], 0, "n"));
 	double im = *mxGetPi(mxGetField(prhs[0], 0, "n"));
     
     //combine the real and imaginary parts to form n
 	params.n = std::complex<double>(re, im);
-    
-    
-    
-    
-    //get noise_vec from input
     
     //get a pointer to noise_vec
 	auto noise_pt = mxGetPr(prhs[4]);
@@ -183,16 +153,23 @@ void mexFunction(int nlhs, mxArray *plhs[],
 	mxFree(plog_level);
 
 	FILE_LOG(logINFO) << "Before Integrate";
-
+    
+    // Output collector from solvers
 	Observer observer(state);
+    
+    // Get appropriate solver for the basis type
 	std::unique_ptr<TDSSolver> solver = solverFactory(basis_type, params);
+    
+    // Set integrator's options
 	OdeIntegrator integrator(ode_const, abs, rel);
+    
+    // Integrate!
 	integrator.integrate(*solver, params.noise_vec, *t_initial_pt, *t_final_pt, dt, boost::ref(observer));
 
 	FILE_LOG(logINFO) << "After Integrate";
 	FILE_LOG(logDEBUG4) << "before assigning output";
 	FILE_LOG(logDEBUG4) << state.num;
-
+    
 	int index = 0;
 	double * outT = (double *)mxMalloc(state.num * sizeof(double));
 
@@ -209,7 +186,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
 		for (int j = 0; j < outvec_size; j++) {
 			if (j > outvec_size - 2 && index > state.num - 2) {
-				FILE_LOG(logDEBUG) << "Values Re: " <<
+				FILE_LOG(logDEBUG2) << "Values Re: " <<
 					state.yout[index][j].real() << " Im: " <<
 					state.yout[index][j].imag();
 			}

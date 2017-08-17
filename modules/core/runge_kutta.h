@@ -1,4 +1,6 @@
-#pragma once
+#ifndef RUNGE_KUTTA_H
+#define RUNGE_KUTTA_H
+
 #include <mex.h>
 #include <matrix.h>
 #include <complex>
@@ -68,7 +70,8 @@ public:
 		FILE_LOG(logDEBUG4) << "begin of observer call";
 		state.tout.push_back(t);
 		state.yout.push_back(x);
-
+        
+        // Uncomment for debugging
 		//for(int j = 0; j < N * (N + 2); j++) {
 		//    if (j > N*N) {
 		//     FILE_LOG(logDEBUG) << "Observer Vals Re: " << 
@@ -334,7 +337,6 @@ public:
 	{
 		auto rkd = runge_kutta_dopri5<state_type>{};
 		auto stepper = make_dense_output(abs_error, rel_error, rkd);
-		Parameters params;
 
 		if (use_const) {
 			integrate_const(boost::ref(stepper), boost::ref(solver), initial_state, start, end, dt, boost::ref(observer));
@@ -349,3 +351,5 @@ private:
 	double abs_error;
 	double rel_error;
 };
+
+#endif /* RUNGE_KUTTA_H */

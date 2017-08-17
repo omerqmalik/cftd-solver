@@ -6,6 +6,8 @@
 #include <iostream>
 #include <stdio.h>
 
+// Adapted from Dr. Dobbs Journal
+
 inline std::string NowTime();
 
 enum TLogLevel {logERROR, logWARNING, logINFO, logDEBUG, logDEBUG1, logDEBUG2, logDEBUG3, logDEBUG4};
