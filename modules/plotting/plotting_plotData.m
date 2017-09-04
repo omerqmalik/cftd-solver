@@ -7,10 +7,12 @@ function S_obj = plotting_plotData(S_structdata,func_type,func_name,save_dir,opt
         end
         S_obj.f = structdata_plotFFT(S_structdata,S_obj);
     elseif strcmp(func_type,'TW')
+        S_obj = plotting_getFigStruct(S_structdata,[func_name 'TW']);
         if strcmp(func_name,'2Dfield')
-            S_obj = plotting_getFigStruct(S_structdata,[func_name 'TW']);
+            S_obj.f = structdata_plotTemporalWaveform(S_structdata,S_obj);
+        elseif strcmp(func_name,'2Dcoeffs')
+            S_obj.f = structdata_plotTemporalWaveformCoeffs(S_structdata,S_obj);
         end
-        S_obj.f = structdata_plotTemporalWaveform(S_structdata,S_obj);
     elseif strcmp(func_type,'SPCFLD')
         if strcmp(func_name,'2Dcoeffs')
             S_obj = plotting_getFigStruct(S_structdata,[func_name 'SPCFLD']);

@@ -68,6 +68,6 @@ function calc_times = core_calcCoeffs(S_coredata,pstep,issave_e,issave_p,issave_
         diag_save1DCalcData(S_coredata,'D','coeffs',pstep,issave_d(2),issave_p(3),issave_p(4));
         diag_save2DCalcData(S_coredata,'D','avgabs',pstep);
     end
-    
+
     fclose(fID);
 end

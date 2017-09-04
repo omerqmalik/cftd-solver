@@ -9,7 +9,7 @@ function [CFvals,CFvecs,dx,nx,x,w_FSR,Na,k_a,M] = cavity_calcModes(basis_type,cn
     if strcmp(basis_type,'RING')
         w_FSR = 2*pi/n;
         basis_func = @(m,x) exp(1i*2*pi*m*x);
-    elseif strcmp(basis_type,'FP') || strcmp(basis_type,'UCF')   %Use FP basis as an estimate of w_FSR and basis_func
+    elseif strcmp(basis_type,'FP') || strcmp(basis_type,'UCF')  %Use FP basis as an estimate of w_FSR and basis_func
         w_FSR = pi/n;
         basis_func = @(m,x) sqrt(2)*sin(pi*m*x);
     end
@@ -51,4 +51,8 @@ function [CFvals,CFvecs,dx,nx,x,w_FSR,Na,k_a,M] = cavity_calcModes(basis_type,cn
     
     [CFvals,CFvecs,m] = cavity_sortBasis(CFvals,CFvecs,k_a);
     M = M(m);
+    
+    if strcmp(cntrmode_type,'Na')
+        k_a = real(CFvals(1));
+    end
 end

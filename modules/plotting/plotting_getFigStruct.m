@@ -67,6 +67,18 @@ function S_fig = plotting_getFigStruct(S_structdata,fig_type,opt_islin,opt_isdec
         else
             title_str = [title_str ', D0=' num2str(S_structdata.pump/S_structdata.th,'%.2f') '-' num2str(S_structdata.pump/S_structdata.th,'%.2f') ', x0=' num2str(S_structdata.x0)];
         end
+    elseif strcmp(fig_type,'2DcoeffsTW')
+        S_fig.islin = 1;
+        S_fig.isdec = 0;
+        S_fig.x_label = 't';
+        lgnd = cell(1,S_structdata.nCF);
+        for i = 1:S_structdata.nCF
+            lgnd{i} = ['$|' S_structdata.id '_{' num2str(i) '}(t)|$'];
+        end
+        S_fig.lgnd = lgnd;
+        S_fig.colormap = 'lines';
+        
+        title_str = [title_str ',D0=' num2str(S_structdata.pump/S_structdata.th,'%.2f')];
     elseif strcmp(fig_type,'DmnAVGABS')
         S_fig.x_label = 'n';
         S_fig.y_label = 'm';
@@ -78,7 +90,7 @@ function S_fig = plotting_getFigStruct(S_structdata,fig_type,opt_islin,opt_isdec
         S_fig.isdec = 0;
         
         S_fig.x_label = '$x$';
-        S_fig.y_label = '$E(x,t_0)$';
+        S_fig.y_label = '$|E(x,t_0)|$';
         
         S_fig.colormap = 'jet';
         

@@ -19,13 +19,21 @@ function f = structdata_plotFFT(S_structdata,S_fig)
 %         width = 4*cavity_getBasisRange(S_structdata.CFvals);
 %     end
         
+    if width == 0
+        width = 2*S_structdata.g_per;
+    end
     [w,~,fftw_mag] = userdata_calcFFT(S_structdata.t,temporal_data,S_structdata.rframe);
     [w,fftw_mag]   = userdata_truncFFT(w,fftw_mag,S_structdata.rframe,width,1);
+    fftw_mag2 = fftw_mag.^2;    %To compare with SALT
     
     if strcmp(S_fig.type,'3DfieldFFT') || strcmp(S_fig.type,'3DcoeffsFFT')
-        f = plotting_linplot3Dfunc(S_structdata.pump/S_structdata.th,w,fftw_mag,S_fig);
+        f = plotting_linplot3Dfunc(S_structdata.pump/S_structdata.th,w,fftw_mag2,S_fig);
     elseif strcmp(S_fig.type,'2DfieldFFT') || strcmp(S_fig.type,'2DcoeffsFFT') || strcmp(S_fig.type,'DcoeffsFFT')
-        f = plotting_plot2Dfunc(w,fftw_mag,S_fig);
+        if strcmp(S_structdata.id,'D')
+            f = plotting_plot2Dfunc(w,fftw_mag,S_fig);
+        else
+            f = plotting_plot2Dfunc(w,fftw_mag2,S_fig);
+        end
         if S_fig.isdec
             cavity_plotEigenvalues(S_structdata.CFvals,1);
             cavity_plotGainCurve(S_structdata.k_a,S_structdata.g_per);
