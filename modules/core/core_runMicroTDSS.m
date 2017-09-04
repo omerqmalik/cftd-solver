@@ -1,4 +1,8 @@
 function core_runMicroTDSS(cav_dir,num,pstep,x0,t0,t1,cratio)
+    issave_e = [1,1,1,1];
+    issave_p = [1,1,1,1];
+    issave_d = [0,0,0,0];
+
     clearvars -global
     addpath(genpath('/tigress/omalik/Time Dynamics/cftd-solver/modules'));
     
@@ -7,14 +11,25 @@ function core_runMicroTDSS(cav_dir,num,pstep,x0,t0,t1,cratio)
     time_all = zeros(1,pstep);
     tstart_all = tic;
     fprintf('pstep %g\nD0=%f\n',pstep,S_coredata.pump(pstep));
-    S_coredata.calc_times = core_calcCoeffs(S_coredata,pstep,[1,1,1,1],[1,0,1,0],[1,1,0,0]);
+    S_coredata.calc_times = core_calcCoeffs(S_coredata,pstep,issave_e,issave_p,issave_d);
     time_all(pstep)=toc(tstart_all);
     fprintf('Total time: %f\n',time_all);
     
     fprintf('\nSaving all data...');
-    rawdata_cleanAll(S_coredata.data_dir,'E','coeffs');
-    rawdata_cleanAll(S_coredata.data_dir,'E','field');
-    rawdata_cleanAll(S_coredata.data_dir,'D','coeffs');
+    
+    if issave_e(1) == 1
+        rawdata_cleanAll(S_coredata.data_dir,'E','coeffs');
+        rawdata_cleanAll(S_coredata.data_dir,'E','field');
+    end
+    
+    if issave_p(1) == 1
+        rawdata_cleanAll(S_coredata.data_dir,'P','coeffs');
+        rawdata_cleanAll(S_coredata.data_dir,'P','field');
+    end
+    
+    if issave_d(1) == 1
+        rawdata_cleanAll(S_coredata.data_dir,'D','coeffs');
+    end
     fprintf(' complete.\n');
     
     fprintf('Making figures...');

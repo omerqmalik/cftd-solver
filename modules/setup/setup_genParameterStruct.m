@@ -62,7 +62,7 @@ function [S_setupdata,S_pumpdata] = setup_genParameterStruct(param_vecs,S_pumpda
         eps        = param_vecs(i,6);
         
         %Name directories
-        calc_dir    = ['num_' num2str(index)];
+        calc_dir    = setup_getCalcDir(index);
         data_dir    = [calc_dir '/data'];
         times_dir   = [calc_dir '/times'];
         results_dir = [calc_dir '/results'];
