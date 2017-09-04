@@ -2,7 +2,7 @@ function dy = TDSSolvers_FP(t,y,g_per,g_par,k_a,CFvals,A,pump_pwr,N,n)
     %Reshape inputs into identifiable vectors/arrays
     a_vec  = y(1:N);
     b_vec  = y(N+1:2*N);
-    D_vec  = y(2*N+1:end);
+    D_vec  = y((2*N+1):end);
     D_mat  = reshape(D_vec,[N,N]);
     
     %Consult notes 8/19/2016

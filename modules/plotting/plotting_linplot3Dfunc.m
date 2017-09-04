@@ -9,6 +9,6 @@ function [f,h] = plotting_linplot3Dfunc(x,y,Z,S_fig)
     
     title(S_fig.title_str,'interpreter','none');
     
-    h = colorbar;
-    ylabel(h,S_fig.z_label);
+    h1 = colorbar;
+    ylabel(h1,S_fig.z_label,'interpreter','latex');
 end

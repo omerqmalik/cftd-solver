@@ -1,4 +1,4 @@
-function [T,Y,calc_times] = core_calcCoeffs(S_coredata,pstep)
+function calc_times = core_calcCoeffs(S_coredata,pstep,issave_e,issave_p,issave_d)
 
     %Generate appropriate function handle
     g_per      = S_coredata.g_per;
@@ -17,93 +17,65 @@ function [T,Y,calc_times] = core_calcCoeffs(S_coredata,pstep)
         solver_func = @(t,y) TDSSolvers_RING(t,y,g_per,g_par,k_a,CFvals,A,pump_pwr,length(CFvals),n);
     elseif strcmp(basis_type,'FP')
         solver_func = @(t,y) TDSSolvers_FP(t,y,g_per,g_par,k_a,CFvals,A,pump_pwr,length(CFvals),n);
+    elseif strcmp(basis_type,'UCF')
+        solver_func = @(t,y) TDSSolvers_UCF(t,y,g_per,g_par,k_a,CFvals,A,B,pump_pwr,length(CFvals));
     end
     
     %Get first group from tvec to begin saving
     tvec        = S_coredata.tvec;
-    sratio      = S_coredata.sratio;
     len_tvec    = length(tvec);
-    save_group0 = get_save_group0(tvec,sratio);
 
     %Initialize
-    noise_vec  = S_coredata.noise_vec;
-    calc_times = zeros(len_tvec-1,1);
-    benchmark_saveTimeForPstep(S_coredata.times_dir,pstep,calc_times);
-    T_temp = [];
-    Y_temp = [];
-    is_saving = 0;
-    opts = odeset('RelTol',1e-3,'AbsTol',1e-6);   %MATLAB defaults: RelTol=1e-3, AbsTol=1e-6 (usually good enough)
+    [t_last,Y_last] = core_loadCheckpoints(core_getCheckpointFn(pstep,S_coredata.cp_dir));
+    noise_vec  = Y_last(:,end);
+    t_ind = find(tvec == t_last(end));
+    if t_ind == 1
+        calc_times = zeros(len_tvec-1,1);
+        benchmark_saveTimeForPstep(S_coredata.times_dir,pstep,calc_times);
+    else
+        calc_times = benchmark_loadTimeForPstep(S_coredata.times_dir,pstep);
+    end
+    opts = odeset('RelTol',1e-3,'AbsTol',1e-6);   %MATLAB defaults: RelTol=1e-3, AbsTol=1e-6 (usually good and fast enough)
     
     %Run ODE solver, save E_t, and store T and Y in memory to return at end
-    for j = 1:(len_tvec - 1)
+    for j = t_ind:(len_tvec - 1)
         tstart_in = tic;
         [T,Y] = ode45(solver_func, [tvec(j) tvec(j+1)],noise_vec,opts);
         calc_times(j) = toc(tstart_in);
         noise_vec = Y(end,:);
+        
+        rawdata_save([T(1) T(end)],mean(abs(Y(:,(2*S_coredata.nCF+1):end))).',S_coredata.temp_dir,'D','avgabs',pstep,j);
+        if issave_d(1) == 1
+            rawdata_save(T,Y(:,S_coredata.Dsave),S_coredata.temp_dir,'D','coeffs',pstep,j);
+        end
+        Y = Y(:,1:2*S_coredata.nCF);
 
-        %Save E_t
-        E_t_next = userdata_calcTemporalField(Y(:,1:S_coredata.nCF),S_coredata.CFvecs);
-        T_next   = T;
-        if exist(rawdata_getFileName(S_coredata.data_dir,'E','field',pstep),'file') == 2
-            [T,E_t] = rawdata_load(S_coredata.data_dir,'E','field',pstep);
-            E_t = [E_t; E_t_next];
-            T   = [T; T_next];
-            rawdata_save(T,E_t,S_coredata.data_dir,'E','field',pstep);
-        else
-            E_t = E_t_next;
-            rawdata_save(T,E_t,S_coredata.data_dir,'E','field',pstep);
+        %Save e_m and p_m
+        if issave_e(1) == 1
+            rawdata_save(T,Y(:,1:S_coredata.nCF),S_coredata.temp_dir,'E','coeffs',pstep,j);
         end
-        clear E_t_next;
         
-        %Save P_t
-        P_t_next = userdata_calcTemporalField(Y(:,(S_coredata.nCF+1):2*S_coredata.nCF),S_coredata.CFvecs);
-        if exist(rawdata_getFileName(S_coredata.data_dir,'P','field',pstep),'file') == 2
-            [~,P_t] = rawdata_load(S_coredata.data_dir,'P','field',pstep);
-            P_t = [P_t; P_t_next];
-            rawdata_save(T,P_t,S_coredata.data_dir,'P','field',pstep);
-        else
-            P_t = P_t_next;
-            rawdata_save(T,P_t,S_coredata.data_dir,'P','field',pstep);
+        if issave_p(1) == 1
+            rawdata_save(T,Y(:,(S_coredata.nCF+1):2*S_coredata.nCF),S_coredata.temp_dir,'P','coeffs',pstep,j);
         end
-        clear P_t_next;
-        
-        %Appropriately store T and Y in memory
-        if j < save_group0
-            clear T Y T_next E_t P_t;
-        else
-            if is_saving == 0
-                Y      = Y(T_next >= tvec(end)*(1-sratio),:);
-                T_next = T_next(T_next >= tvec(end)*(1-sratio));
-                is_saving = 1;
-            end
-            T_temp = [T_temp; T_next(2:end)];
-            Y_temp = [Y_temp; Y(2:end,:)];
-            if j < (len_tvec - 1)
-                clear T_next E_t P_t;
-            end
-        end
+                
+        %bookkeeping
         fprintf('iteration %g: %fs\n',j,calc_times(j));
         benchmark_saveTimeForPstep(S_coredata.times_dir,pstep,calc_times);
+        core_saveCheckpoints(tvec(j+1),noise_vec.',core_getCheckpointFn(pstep,S_coredata.cp_dir));
     end
-    fprintf('Total time: %fs\n\n',sum(calc_times));     %Is the data below being saved 'clean'?
+    fprintf('Total time: %fs\n\n',sum(calc_times));
     
-    T = T_temp;
-    Y = Y_temp;
-end
-
-function save_group0 = get_save_group0(tvec,sratio)
-    save_t0 = round(tvec(end)*(1 - sratio));
-    tvec_new = sort([tvec save_t0]);
-    pos_new = find(tvec_new == save_t0);
-    if length(pos_new) > 1
-        save_group0 = pos_new(1);
-    else
-        if pos_new <= 2
-            save_group0 = 1;
-        elseif pos_new >= length(tvec)
-            save_group0 = length(tvec) - 1;
-        else
-            save_group0 = pos_new - 1;
-        end
+    if issave_e(1) == 1
+        diag_save1DCalcData(S_coredata,'E','coeffs',pstep,issave_e(2),issave_e(3),issave_e(4));
+    end
+    
+    if issave_p(1) == 1
+        diag_save1DCalcData(S_coredata,'P','coeffs',pstep,issave_p(2),issave_p(3),issave_p(4));
+    end
+    
+    if issave_d(1) == 1
+        diag_save1DCalcData(S_coredata,'D','coeffs',pstep,issave_d(2),issave_p(3),issave_p(4));
+        diag_save2DCalcData(S_coredata,'D','avgabs',pstep);
     end
 end

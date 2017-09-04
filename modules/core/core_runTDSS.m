@@ -2,8 +2,10 @@ function core_runTDSS(cav_dir,num,pgroup)
     clearvars -global
     addpath(genpath('/tigress/omalik/Time Dynamics/cftd-solver/modules'));
     
+    x0 = 0.327;
+    
     fprintf('num: %d\npgroup: %d\n',num,pgroup);
-    S_coredata = core_init(cav_dir,num,'macro',pgroup);
+    S_coredata = core_init(cav_dir,num,'macro',x0,pgroup);
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                 TIME DYNAMICAL CALCULATION STARTS HERE                  %
@@ -15,13 +17,17 @@ function core_runTDSS(cav_dir,num,pgroup)
         pgstep = S_coredata.pumpgrp_ind(i);
         fprintf('pstep %g\nD0=%f\n',pstep,S_coredata.pump(pstep));
         
-        %calculate
-        [T,Y,S_coredata.calc_times(:,pgstep)] = core_calcCoeffs(S_coredata,pstep);
+        %calculate and save
+        [S_coredata.calc_times(:,pgstep)] = core_calcCoeffs(S_coredata,pstep,[1,1,1,1],[1,0,1,0],[0,0,0,0]);
         
-        %save
-        Y = Y(:,1:S_coredata.nCF);
-        rawdata_save(T,Y,S_coredata.data_dir,'E','coeffs',pstep)
+        if strcmp(S_coredata.pump_type,'hysteresis') && i < length(S_coredata.pump_ind)
+            [~,Y_last] = core_loadCheckpoints(core_getCheckpointFn(pstep,S_coredata.cp_dir));
+            core_saveCheckpoints(S_coredata.tvec(1),Y_last(:,end),core_getCheckpointFn(pstep+1,S_coredata.cp_dir));
+        end
+        
+        %save benchmark
         benchmark_saveTimeFile(S_coredata.times_dir,pgroup,S_coredata.calc_times);
+        benchmark_saveDoneFile(S_coredata.times_dir,pstep);
     end
     time_all=toc(tstart_all);
     fprintf('Total time: %f\n',time_all);
@@ -30,18 +36,18 @@ function core_runTDSS(cav_dir,num,pgroup)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     %Post processing
-    datafiles = dir([S_coredata.data_dir '/Ecoeffs_*.mat']);
+    datafiles = dir([S_coredata.times_dir '/done_*.mat']);
     
     if length(datafiles) == S_coredata.pump_sz
         fprintf('\nSaving all data...');
         rawdata_cleanAll(S_coredata.data_dir,'E','coeffs');
         rawdata_cleanAll(S_coredata.data_dir,'E','field');
-        rawdata_cleanAll(S_coredata.data_dir,'P','field');
+%         rawdata_cleanAll(S_coredata.data_dir,'P','field');
         benchmark_consolidateTimes(S_coredata.times_dir);
         fprintf(' complete.\n');
         
         fprintf('Making figures...');
-        structdata_saveFigures(cav_dir,num,S_coredata.results_dir);
+        userplot_saveFigures(cav_dir,num,x0,S_coredata.results_dir);
         fprintf(' complete.\n');
     end
 end
