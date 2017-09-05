@@ -4,7 +4,7 @@ function userplot_saveFigures(cav_dir,num,x0,results_dir)
     savedir_2DfieldFFT  = [results_dir '/2DfieldFFT'];
     savedir_2DfieldTW   = [results_dir '/2DfieldTW'];
     savedir_2DcoeffsFFT = [results_dir '/2DcoeffsFFT'];
-    savedir_DmnAVGABS   = [results_dir '/DmnAVGABS'];
+%     savedir_DmnAVGABS   = [results_dir '/DmnAVGABS'];
     if ~(exist(savedir_2DfieldFFT,'dir') == 7)
         mkdir(savedir_2DfieldFFT);
     end

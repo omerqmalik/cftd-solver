@@ -1,36 +1,57 @@
 function core_runTDSS(cav_dir,num,pgroup)
-    clearvars -global
+    %clearvars -global % moved to run script (blade_runner)
+    global benchmarking;
+    
+    delete mem_file.txt;
+    
     addpath(genpath('/tigress/omalik/Time Dynamics/cftd-solver/modules'));
     
     x0 = 0.327;
     
     fprintf('num: %d\npgroup: %d\n',num,pgroup);
+    
     S_coredata = core_init(cav_dir,num,'macro',x0,pgroup);
+    set(0,'DefaultFigureVisible','off');
+    
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                 TIME DYNAMICAL CALCULATION STARTS HERE                  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    tstart_all = tic;
+    if (benchmarking)
+        tstart_all = tic;
+    end
     for i = 1:length(S_coredata.pump_ind)
         %initialize
         pstep  = S_coredata.pump_ind(i);
         pgstep = S_coredata.pumpgrp_ind(i);
-        fprintf('pstep %g\nD0=%f\n',pstep,S_coredata.pump(pstep));
+        if (benchmarking) 
+            fprintf('pstep %g\nD0=%f\n', pstep, S_coredata.pump(pstep));
+        end
+        
+        %log_memory("pstep-%d,begin", pstep);
+        from = datetime('now','TimeZone','local');
+        from_mem = java.lang.Runtime.getRuntime.totalMemory;
         
         %calculate and save
-        [S_coredata.calc_times(:,pgstep)] = core_calcCoeffs(S_coredata,pstep,[1,1,1,1],[1,0,1,0],[0,0,0,0]);
-        
+        [S_coredata.calc_times(:,pgstep)] = ...
+        core_calcCoeffs(S_coredata,pstep,[1,1,1,1],[1,0,1,0],[0,0,0,0]);
+    
+        log_memory(from, datetime('now','TimeZone','local'), "pstep-%d,%d", pstep, from_mem);
+       
         if strcmp(S_coredata.pump_type,'hysteresis') && i < length(S_coredata.pump_ind)
             [~,Y_last] = core_loadCheckpoints(core_getCheckpointFn(pstep,S_coredata.cp_dir));
             core_saveCheckpoints(S_coredata.tvec(1),Y_last(:,end),core_getCheckpointFn(pstep+1,S_coredata.cp_dir));
         end
-        
-        %save benchmark
-        benchmark_saveTimeFile(S_coredata.times_dir,pgroup,S_coredata.calc_times);
-        benchmark_saveDoneFile(S_coredata.times_dir,pstep);
+        if (benchmarking)
+            %save benchmark
+            benchmark_saveTimeFile(S_coredata.times_dir,pgroup,S_coredata.calc_times);
+            benchmark_saveDoneFile(S_coredata.times_dir,pstep);
+        end
     end
-    time_all=toc(tstart_all);
-    fprintf('Total time: %f\n',time_all);
+    if (benchmarking)
+        time_all=toc(tstart_all);
+        fprintf('Total time: %f\n',time_all);
+    end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                  TIME DYNAMICAL CALCULATION ENDS HERE                   %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -38,11 +59,11 @@ function core_runTDSS(cav_dir,num,pgroup)
     %Post processing
     datafiles = dir([S_coredata.times_dir '/done_*.mat']);
     
-    if length(datafiles) == S_coredata.pump_sz
+    if (length(datafiles) == S_coredata.pump_sz)
         fprintf('\nSaving all data...');
         rawdata_cleanAll(S_coredata.data_dir,'E','coeffs');
         rawdata_cleanAll(S_coredata.data_dir,'E','field');
-%         rawdata_cleanAll(S_coredata.data_dir,'P','field');
+        %rawdata_cleanAll(S_coredata.data_dir,'P','field');
         benchmark_consolidateTimes(S_coredata.times_dir);
         fprintf(' complete.\n');
         
@@ -50,6 +71,7 @@ function core_runTDSS(cav_dir,num,pgroup)
         userplot_saveFigures(cav_dir,num,x0,S_coredata.results_dir);
         fprintf(' complete.\n');
     end
+    set(0,'DefaultFigureVisible','on');
 end
 
 %Things to plot/save:
