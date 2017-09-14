@@ -10,6 +10,9 @@ test_calc_RING/*
 test_calc_FP/*
 !test_calc_FP/run_ml_Nmode.cmd
 !test_calc_FP/TD_D0_parameters.m
+test_calc_UCF/*
+!test_calc_UCF/run_ml_Nmode.cmd
+!test_calc_UCF/TD_D0_parameters.m
 num_1/
 num_2/
 modules/core/boost/

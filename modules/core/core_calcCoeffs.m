@@ -1,10 +1,4 @@
 function calc_times = core_calcCoeffs(S_coredata,pstep,issave_e,issave_p,issave_d)
-    global benchmarking;
-    
-    fID = fopen('mem_file.txt','a');
-    
-    
-    
     %Get first group from tvec to begin saving
     tvec        = S_coredata.tvec;
     len_tvec    = length(tvec);
@@ -14,7 +8,7 @@ function calc_times = core_calcCoeffs(S_coredata,pstep,issave_e,issave_p,issave_
     noise_vec  = Y_last(:,end);
     t_ind = find(tvec == t_last(end));
     
-    if (benchmarking) 
+    if (S_coredata.benchmarking)
         if t_ind == 1
             calc_times = zeros(len_tvec-1,1);
             benchmark_saveTimeForPstep(S_coredata.times_dir,pstep,calc_times);
@@ -27,7 +21,7 @@ function calc_times = core_calcCoeffs(S_coredata,pstep,issave_e,issave_p,issave_
     %Run ODE solver, save E_t, and store T and Y in memory to return at end
     for j = t_ind:(len_tvec - 1)
         tstart_in = tic;
-        [T,Y] = ode45Wrapper(S_coredata, pstep, [tvec(j) tvec(j+1)],noise_vec,opts);
+        [T,Y] = core_ode45Wrapper(S_coredata, pstep, [tvec(j) tvec(j+1)],noise_vec,opts);
         calc_times(j) = toc(tstart_in);
         noise_vec = Y(end,:);
         
@@ -45,14 +39,14 @@ function calc_times = core_calcCoeffs(S_coredata,pstep,issave_e,issave_p,issave_
         if issave_p(1) == 1
             rawdata_save(T,Y(:,(S_coredata.nCF+1):2*S_coredata.nCF),S_coredata.temp_dir,'P','coeffs',pstep,j);
         end
-        if (benchmarking)        
+        if (S_coredata.benchmarking)        
             %bookkeeping
             fprintf('iteration %g: %fs, memory: %d\n',j,calc_times(j),java.lang.Runtime.getRuntime.totalMemory);
             benchmark_saveTimeForPstep(S_coredata.times_dir,pstep,calc_times);
             core_saveCheckpoints(tvec(j+1),noise_vec.',core_getCheckpointFn(pstep,S_coredata.cp_dir));
         end
     end
-    if (benchmarking) 
+    if (S_coredata.benchmarking) 
         fprintf('Total time: %fs\n\n',sum(calc_times));
     end
     
@@ -68,6 +62,4 @@ function calc_times = core_calcCoeffs(S_coredata,pstep,issave_e,issave_p,issave_
         diag_save1DCalcData(S_coredata,'D','coeffs',pstep,issave_d(2),issave_p(3),issave_p(4));
         diag_save2DCalcData(S_coredata,'D','avgabs',pstep);
     end
-
-    fclose(fID);
 end

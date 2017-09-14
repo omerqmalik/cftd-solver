@@ -1,0 +1,22 @@
+1. Download and unpack the C++ Boost tarball to a directory of your choice (DIR_A). We used Boost C++ version 1.64 for our testing
+
+2. Obtain the CFTD-solver code from 'https://github.com/omerqmalik/cftd-solver' and download it to a directory of yoru choice (DIR_B)
+
+3. Open your MATLAB startup.m file (~/Documents/MATLAB/startup.m on OS X). If the file does not exist, create it. Append the following to startup.m:
+
+% Add CFTD module directory (and subdirectories) to path
+ANALYSIS_DIR = 'DIR_B/modules';
+addpath(genpath(ANALYSIS_DIR));
+
+% Set environment variables to define paths to libraries and temporary folder
+setenv('CFTD_TEMP_PATH','path_to_temporary_folder/');   %Path to a directory you have created for storing temporary output from CFTD. This directory may be purged after your calculations are complete. Refrain from purging while any calculations are still completing.
+setenv('BOOST_LIB_PATH','DIR_A/');  %Path to the unpacked Boost Library files
+setenv('CPP_CODES_PATH',[ANALYSIS_DIR '/cppcore']); %Path to C++ files. Default should work 
+
+4. In MATLAB, navigate to the folder 'test_calc_FP/' in 'cftd-solver/'. Copy 'TD_D0_parameters.m' to a new folder (DIR_C) and run 'TD_D0_parameters.m'
+
+5. From the same folder (DIR_C)  that you just created to for 'TD_D0_parameters.m', type 'core_runTDSS('.',1,1) to run the solver
+
+6. Create another folder (DIR_D) and copy 'TD_D0_parameters.m' to this folder and set 'S_odeoptions.use_ode_cpp' to 'false' in 'TD_D0_parameters.m'. Type 'core_runTDSS('.',1,1) from the same folder again to run the solver
+
+7. The results in DIR_C are for a calculation done using the Boost library and the ones in DIR_D are for a calculation done using ode45. In each folder, navigate to 'num_1/diagnostics' and open 'Ecoeffs_pstep_N.png' files (where N is a 'pstep' number, just pick any N). Note how the lines are not smooth for the cpp calculation. This is probably happening each time the time-vector is divided up

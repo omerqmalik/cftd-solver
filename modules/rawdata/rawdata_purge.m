@@ -9,8 +9,11 @@ function rawdata_purge
     if exist('integrals','dir') == 7
         rmdir('integrals','s');
     end
-    rmdir('slurms','s')
+    if exist('slurms','dir') == 7
+        rmdir('slurms','s');
+    end
     delete for_bash
     delete TD_init_parameters.mat
     delete TD_D0_parameters.m~
+    delete sd_data.mat
 end

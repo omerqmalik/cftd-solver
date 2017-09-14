@@ -1,30 +1,23 @@
 function core_runTDSS(cav_dir,num,pgroup)
-    %clearvars -global % moved to run script (blade_runner)
-    global benchmarking;
-    
-    delete mem_file.txt;
-    
-    addpath(genpath('/tigress/omalik/Time Dynamics/cftd-solver/modules'));
+    clearvars -global % moved to run script (blade_runner)
     
     x0 = 0.327;
     
     fprintf('num: %d\npgroup: %d\n',num,pgroup);
     
     S_coredata = core_init(cav_dir,num,'macro',x0,pgroup);
-    set(0,'DefaultFigureVisible','off');
-    
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                 TIME DYNAMICAL CALCULATION STARTS HERE                  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if (benchmarking)
+    if (S_coredata.benchmarking)
         tstart_all = tic;
     end
     for i = 1:length(S_coredata.pump_ind)
         %initialize
         pstep  = S_coredata.pump_ind(i);
         pgstep = S_coredata.pumpgrp_ind(i);
-        if (benchmarking) 
+        if (S_coredata.benchmarking) 
             fprintf('pstep %g\nD0=%f\n', pstep, S_coredata.pump(pstep));
         end
         
@@ -36,19 +29,19 @@ function core_runTDSS(cav_dir,num,pgroup)
         [S_coredata.calc_times(:,pgstep)] = ...
         core_calcCoeffs(S_coredata,pstep,[1,1,1,1],[1,0,1,0],[0,0,0,0]);
     
-        log_memory(from, datetime('now','TimeZone','local'), "pstep-%d,%d", pstep, from_mem);
+        benchmark_logmem(from, datetime('now','TimeZone','local'), 'pstep-%d,%d', S_coredata.memlogfile, pstep, from_mem);
        
         if strcmp(S_coredata.pump_type,'hysteresis') && i < length(S_coredata.pump_ind)
             [~,Y_last] = core_loadCheckpoints(core_getCheckpointFn(pstep,S_coredata.cp_dir));
             core_saveCheckpoints(S_coredata.tvec(1),Y_last(:,end),core_getCheckpointFn(pstep+1,S_coredata.cp_dir));
         end
-        if (benchmarking)
+        if (S_coredata.benchmarking)
             %save benchmark
             benchmark_saveTimeFile(S_coredata.times_dir,pgroup,S_coredata.calc_times);
             benchmark_saveDoneFile(S_coredata.times_dir,pstep);
         end
     end
-    if (benchmarking)
+    if (S_coredata.benchmarking)
         time_all=toc(tstart_all);
         fprintf('Total time: %f\n',time_all);
     end
@@ -71,7 +64,6 @@ function core_runTDSS(cav_dir,num,pgroup)
         userplot_saveFigures(cav_dir,num,x0,S_coredata.results_dir);
         fprintf(' complete.\n');
     end
-    set(0,'DefaultFigureVisible','on');
 end
 
 %Things to plot/save:

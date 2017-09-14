@@ -1,6 +1,4 @@
-
-function log_memory(from_time, to_time, message, varargin)
-   global mem_log_file;
+function benchmark_logmem(from_time, to_time, message, mem_log_file, varargin)
    persistent hostname;
    
    if isempty(hostname)

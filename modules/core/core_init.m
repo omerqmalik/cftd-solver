@@ -1,5 +1,5 @@
 function S_coredata = core_init(cav_dir,num,calc_type,x0,varargin)
-    load([cav_dir '/TD_init_parameters.mat'],'S_setupdata','S_pumpdata');
+    load([cav_dir '/TD_init_parameters.mat'],'S_setupdata','S_pumpdata','S_odeoptions');
     load([cav_dir '/' S_setupdata(num).integral_loc]);
     calc_dir = [cav_dir '/' S_setupdata(num).calc_dir]
     
@@ -25,6 +25,25 @@ function S_coredata = core_init(cav_dir,num,calc_type,x0,varargin)
     S_coredata.nCF          = S_setupdata(num).nCF;          %# of CF states
     [~,S_coredata.CFvecs]   = cavity_loadBasis([cav_dir '/' S_setupdata(num).basis_loc],S_setupdata(num).k_a);
     S_coredata.x0           = x0;
+    
+    %ODE parameters
+    S_coredata.log_level    = S_odeoptions.log_level;
+    S_coredata.use_ode_cpp  = S_odeoptions.use_ode_cpp;
+    if S_coredata.use_ode_cpp
+        S_coredata.odeint_const = S_odeoptions.odeint_const;
+        S_coredata.dt           = S_odeoptions.dt;
+        S_coredata.abs_error    = S_odeoptions.abs_error;
+        S_coredata.rel_error    = S_odeoptions.rel_error;
+    end
+    
+    %Memory benchmarking
+    S_coredata.benchmarking = S_odeoptions.benchmarking;
+    if S_coredata.benchmarking
+        S_coredata.memlogfile = [getenv('CFTD_TEMP_PATH') '/inside_mem_log.txt'];
+    
+        %Clear out mem_log_file
+        fclose(fopen(S_coredata.memlogfile, 'wt'));
+    end
     
     %Parameters used by macro calculation
     if strcmp(calc_type,'macro')
