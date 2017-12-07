@@ -127,16 +127,22 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     //combine the real and imaginary parts to form n
 	params.n = std::complex<double>(re, im);
-    
-    //get a pointer to noise_vec
-	auto noise_pt = mxGetPr(prhs[4]);
-    
-	size_t outvec_size = params.N * (params.N + 2);
-    
+       
+	size_t outvec_size = params.N * (params.N + 2);    
 	params.noise_vec.resize(outvec_size);
 
-	for (int i = 0; i < params.noise_vec.size(); i++)
-		params.noise_vec[i] = noise_pt[i];
+    //get pointers to noise_vec   
+    auto nv_real = mxGetPr(prhs[4]);
+	auto nv_imag = mxGetPi(prhs[4]);
+    
+    // if imaginary part is zero, mex function is getting only real part
+    if (nv_imag) {
+        for (int i = 0; i < params.noise_vec.size(); i++)
+            params.noise_vec[i] = std::complex<double>(nv_real[i], nv_imag[i]);
+    } else {
+        for (int i = 0; i < params.noise_vec.size(); i++)
+            params.noise_vec[i] = std::complex<double>(nv_real[i], 0);
+    }
 
 	auto t_initial_pt = mxGetPr(prhs[2]);
 	auto t_final_pt = mxGetPr(prhs[3]);
